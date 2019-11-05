@@ -1,0 +1,30 @@
+{
+  "name": "final-project",
+  "version": "1.0.0",
+  "description": "End of semester project for IMG 250, Applied Javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndresNS/IMG250-FinalProject.git"
+  },
+  "keywords": [
+    "phaser",
+    "javascript",
+    "mtg-api"
+  ],
+  "author": "Andres Navarro S.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndresNS/IMG250-FinalProject/issues"
+  },
+  "homepage": "https://github.com/AndresNS/IMG250-FinalProject#readme",
+  "devDependencies": {
+    "eslint": "^6.6.0"
+  },
+  "dependencies": {
+    "phaser": "^3.20.1"
+  }
+}
