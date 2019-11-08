@@ -12,15 +12,26 @@ var WorldScene = new Phaser.Class({
 
 	create: function () {
 		//map
-		this.add.sprite(500, 400, "background");
+		var map = this.make.tilemap({ key: "map" });
 
-		// this.physics.world.bounds.width = map.widthInPixels;
-		// this.physics.world.bounds.height = map.heightInPixels;
-		// this.player.setCollideWorldBounds(true);
+		var tiles = map.addTilesetImage("rpg_tileset", "tiles");
+
+		var water = map.createStaticLayer("water", tiles, 0, 0);
+		var floor = map.createStaticLayer("floor", tiles, 0, 0);
+		var bridges1 = map.createStaticLayer("bridges1", tiles, 0, 0);
+		var bridges2 = map.createStaticLayer("bridges2", tiles, 0, 0);
+		water.setCollisionByExclusion([-1]);
 
 		//player
-		this.player = this.physics.add.sprite(this.sys.game.config.width / 2, this.sys.game.config.height / 2, "player", 6);
+		this.player = this.physics.add.sprite(1050, 1080, "player", 6);
 		this.player.setScale(2);
+
+		//collision
+		this.physics.world.bounds.width = map.widthInPixels;
+		this.physics.world.bounds.height = map.heightInPixels;
+		this.player.setCollideWorldBounds(true);
+
+		this.physics.add.collider(this.player, water);
 
 		//user inputs
 		this.cursors = this.input.keyboard.createCursorKeys();
