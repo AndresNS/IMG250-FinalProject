@@ -2,7 +2,7 @@
   "name": "final-project",
   "version": "1.0.0",
   "description": "End of semester project for IMG 250, Applied Javascript",
-  "main": "index.js",
+  "main": "src/js/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
