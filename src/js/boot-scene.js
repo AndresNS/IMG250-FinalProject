@@ -14,6 +14,9 @@ let BootScene = new Phaser.Class({
 		//characters
 		this.load.spritesheet("characters", "assets/characters.png", { frameWidth: 32, frameHeight: 32 });
 
+		//dialog box
+		this.load.image("dialogbox", "assets/dialogbox.png");
+
 	}, //End preload
 
 	create: function () {

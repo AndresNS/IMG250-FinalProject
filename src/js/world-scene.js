@@ -8,7 +8,7 @@ let WorldScene = new Phaser.Class({
 
 	preload: function () {
 
-	},
+	}, //end preload
 
 	create: function () {
 		//map
@@ -24,12 +24,12 @@ let WorldScene = new Phaser.Class({
 
 		//player
 		this.player = this.physics.add.sprite(1050, 1080, "characters", 1);
-		
+
 		//npcs
 		let npcs = this.physics.add.staticGroup();
 		npcs.create(1072, 300, "characters", 10); //npc white
 		npcs.create(1850, 800, "characters", 7); //npc blue
-		npcs.create(1551, 1850, "characters", 52); //npc black
+		npcs.create(1551, 1850, "characters", 52); //npc black	
 		npcs.create(700, 1780, "characters", 49); //npc red
 		npcs.create(335, 800, "characters", 4); //npc green
 
@@ -76,7 +76,19 @@ let WorldScene = new Phaser.Class({
 			repeat: -1
 		});
 
-	},
+		//npc talk triggers
+		this.npcTalkTriggers = this.physics.add.group({ classType: Phaser.GameObjects.Zone });
+
+		this.npcTalkTriggers.create(1072, 332, 50, 100); //npc white
+		this.npcTalkTriggers.create(1850, 832, 50, 100); //npc blue
+		this.npcTalkTriggers.create(1551, 1850, 100, 100); //npc black
+		this.npcTalkTriggers.create(700, 1780, 100, 100); //npc red
+		this.npcTalkTriggers.create(335, 832, 50, 100); //npc green
+
+		this.physics.add.overlap(this.player, this.npcTalkTriggers, this.onMeetEnemy, false, this);
+
+
+	}, //end create
 
 	update: function () {
 		this.player.body.setVelocity(0);
@@ -112,5 +124,43 @@ let WorldScene = new Phaser.Class({
 		else {
 			this.player.anims.stop();
 		}
+	}, //end update
+
+	onMeetEnemy: function (player, zone) {
+		zone.destroy();
+
+		this.scene.pause("WorldScene");
+		this.scene.launch("DialogScene");
+	} //end onMeetEnemy
+}); //end WorldScene
+
+let DialogScene = new Phaser.Class({
+
+	Extends: Phaser.Scene,
+
+	initialize: function DialogScene() {
+		Phaser.Scene.call(this, { key: "DialogScene" });
+	},
+
+	create: function () {
+		//dialog box
+		let dialogbox = this.add.sprite(0, 240, "dialogbox");
+		dialogbox.setOrigin(0, 0);
+		this.addMessage(npcMessage.red.greet);
+
+		//user inputs
+		this.keys = this.input.keyboard.addKey("SPACE");
+	},
+
+	update: function () {
+		if (this.keys.isDown) {
+			this.scene.stop("DialogScene");
+			this.scene.sleep("WorldScene");
+			this.scene.launch("MatchScene");
+		}
+	}, //end update
+
+	addMessage: function(text){
+		let message = this.add.text(15, 250, text, { color: "#ffffff", fontSize: 13, wordWrap: { width: 370, useAdvancedWrap: true } });
 	}
-});
+}); //end DialogScene
