@@ -6,6 +6,7 @@
 - https://phaser.io/tutorials/getting-started-phaser3/index
 - https://phaser.io/docs/2.6.2/index
 - https://photonstorm.github.io/phaser3-docs/index.html
+- https://rexrainbow.github.io/phaser3-rex-notes/docs/site/index.html
 - https://gamedevacademy.org/how-to-create-a-turn-based-rpg-game-in-phaser-3-part-1/
 - https://www.mapeditor.org/
 - https://jwiese.eu/en/blog/2017/08/phaser-3-game-configuration/

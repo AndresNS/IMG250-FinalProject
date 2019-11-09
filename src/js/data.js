@@ -1,28 +1,34 @@
-const npcMessage = {
-	white: {
-		greet: "Hello, I'm Gideon Jura!",
-		victory: "You win!",
-		defeat: "You lose!"
+const npcMessages = Object.freeze({
+	WHITE: {
+		GREET: "Hello, I'm Gideon Jura!",
+		VICTORY: "You win!",
+		DEFEAT: "You lose!"
 	},
-	blue: {
-		greet: "Hello, I'm Jace Beleren",
-		victory: "You win!",
-		defeat: "You lose!"
+	BLUE: {
+		GREET: "Hello, I'm Jace Beleren",
+		VICTORY: "You win!",
+		DEFEAT: "You lose!"
 	},
-	black: {
-		greet: "Hello, I'm Davriel Cane!",
-		victory: "You win!",
-		defeat: "You lose!"
+	BLACK: {
+		GREET: "Hello, I'm Davriel Cane!",
+		VICTORY: "You win!",
+		DEFEAT: "You lose!"
 	},
-	red: {
-		greet: "Hello, I'm Sarkhan Vol!",
-		victory: "You win!",
-		defeat: "You lose!"
+	RED: {
+		GREET: "Hello, I'm Sarkhan Vol!",
+		VICTORY: "You win!",
+		DEFEAT: "You lose!"
 	},
-	green: {
-		greet: "Hello, I'm Nissa Revane!",
-		victory: "You win!",
-		defeat: "You lose!"
+	GREEN: {
+		GREET: "Hello, I'm Nissa Revane!",
+		VICTORY: "You win!",
+		DEFEAT: "You lose!"
 	},
 
-};
+});
+
+const controls = Object.freeze({
+	INTERACT: "A",
+	CANCEL: "S",
+	OPEN_MENU: "ENTER"
+});
