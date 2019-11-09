@@ -1,4 +1,4 @@
-var config = {
+let config = {
 	type: Phaser.AUTO,
 	parent: "game-container",
 	width: 400,
@@ -18,4 +18,4 @@ var config = {
 	]
 };
 
-var game = new Phaser.Game(config);
+let game = new Phaser.Game(config);

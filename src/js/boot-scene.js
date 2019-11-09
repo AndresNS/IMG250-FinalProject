@@ -1,4 +1,4 @@
-var BootScene = new Phaser.Class({
+let BootScene = new Phaser.Class({
 
 	Extends: Phaser.Scene,
 
@@ -11,8 +11,8 @@ var BootScene = new Phaser.Class({
 		this.load.image("tiles", "assets/map/rpg_tileset.png");
 		this.load.tilemapTiledJSON("map", "assets/map/map.json");
 
-		//character
-		this.load.spritesheet("player", "assets/RPG_assets.png", { frameWidth: 16, frameHeight: 16 });
+		//characters
+		this.load.spritesheet("characters", "assets/characters.png", { frameWidth: 32, frameHeight: 32 });
 
 	}, //End preload
 
