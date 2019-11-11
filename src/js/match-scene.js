@@ -32,18 +32,26 @@ let MenuItem = new Phaser.Class({
 
 	initialize: function MenuItem(x, y, text, scene) {
 		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
-			color: "#ffffff",
+			color: "#dddddd",
 			align: "left",
 			fontSize: 13
 		});
 	},
 
 	select: function () {
-		this.setColor("#f8ff38");
+		this.setStyle({
+			color: "#ffffff",
+			stroke: "#000000",
+			strokeThickness: 3
+		});
 	}, //end select
 
 	deselect: function () {
-		this.setColor("#ffffff");
+		this.setStyle({
+			color: "#dddddd",
+			stroke: "#000000",
+			strokeThickness: 0
+		});
 	} //end deselect
 }); //end MenuItem
 
@@ -89,10 +97,10 @@ let Menu = new Phaser.Class({
 	moveSelectionUp: function () {
 		if (this.menuItemIndex > 1) {
 			this.menuItems[this.menuItemIndex].deselect();
-			if(this.menuItemIndex==3){
+			if (this.menuItemIndex == 3) {
 				this.menuItems[1].select();
 				this.menuItemIndex = 1;
-			}else{
+			} else {
 				this.menuItems[0].select();
 				this.menuItemIndex = 0;
 			}
@@ -101,34 +109,34 @@ let Menu = new Phaser.Class({
 	moveSelectionDown: function () {
 		if (this.menuItemIndex < 2) {
 			this.menuItems[this.menuItemIndex].deselect();
-			if(this.menuItemIndex==0){
+			if (this.menuItemIndex == 0) {
 				this.menuItems[2].select();
 				this.menuItemIndex = 2;
-			}else{
+			} else {
 				this.menuItems[3].select();
 				this.menuItemIndex = 3;
 			}
 		}
 	}, //end moveSelectionDown
 	moveSelectionLeft: function () {
-		if (this.menuItemIndex%2!=0) {
+		if (this.menuItemIndex % 2 != 0) {
 			this.menuItems[this.menuItemIndex].deselect();
-			if(this.menuItemIndex==1){
+			if (this.menuItemIndex == 1) {
 				this.menuItems[0].select();
 				this.menuItemIndex = 0;
-			}else{
+			} else {
 				this.menuItems[2].select();
 				this.menuItemIndex = 2;
 			}
 		}
 	}, //end moveSelectionLeft
 	moveSelectionRight: function () {
-		if (this.menuItemIndex%2==0) {
+		if (this.menuItemIndex % 2 == 0) {
 			this.menuItems[this.menuItemIndex].deselect();
-			if(this.menuItemIndex==0){
+			if (this.menuItemIndex == 0) {
 				this.menuItems[1].select();
 				this.menuItemIndex = 1;
-			}else{
+			} else {
 				this.menuItems[3].select();
 				this.menuItemIndex = 3;
 			}
@@ -158,22 +166,33 @@ let UIScene = new Phaser.Class({
 	}, //end initialize
 
 	create: function () {
+
+		//Menu containers
 		this.optionsMenuContainer = this.add.container();
 		this.phasesContainer = this.add.container();
 		this.infoContainer = this.add.container();
 
+		//Options Menu
 		this.optionsMenu = new OptionsMenu(15, 225, this);
 		this.optionsMenu.menuItems[0].select();
-
-		this.currentMenu = this.optionsMenu;
-
-		//add menu to the container
 		this.optionsMenuContainer.add(this.optionsMenu);
 
-		this.matchScene = this.scene.get("MatchScene");
+		//Phases
+		this.enemyPhases = new EnemyPhases(355, 18, this);
+		this.phasesContainer.add(this.enemyPhases);
+		
+		this.playerPhases = new PlayerPhases(355, 118, this);
+		this.playerPhases.phaseItems[0].setActive(); //set active according to starting player
+		this.phasesContainer.add(this.playerPhases);
+
+		//Initial state
+		this.currentMenu = this.optionsMenu;
 
 		// listen for keyboard events
 		this.input.keyboard.on("keydown", this.onKeyInput, this);
+
+
+		// this.matchScene = this.scene.get("MatchScene");
 
 	}, //end create
 
@@ -197,3 +216,83 @@ let UIScene = new Phaser.Class({
 	} //end onKeyInput
 
 }); //end UIScene
+
+let PhaseItem = new Phaser.Class({
+	Extends: Phaser.GameObjects.Text,
+
+	initialize: function PhaseItem(x, y, text, scene) {
+		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
+			color: "#eeeeee",
+			align: "left",
+			fontSize: 11
+		});
+	},
+
+	setActive: function () {
+		this.setStyle({
+			color: "#ffffff",
+			stroke: "#000",
+			strokeThickness: 3
+		});
+	}, //end setActive
+
+	setInactive: function () {
+		this.setStyle({
+			color: "#eeeeee",
+			stroke: "#000",
+			strokeThickness: 0
+		});
+	} //end setInactive
+}); //end PhaseItem
+
+let Phases = new Phaser.Class({
+	Extends: Phaser.GameObjects.Container,
+
+	initialize: function Phases(x, y, scene) {
+		Phaser.GameObjects.Container.call(this, scene, x, y);
+
+		this.phaseItems = [];
+		this.phaseItemIndex = 0;
+		this.x = x;
+		this.y = y;
+	}, //end initialize
+
+	addPhaseItem: function (text) {
+		var phaseItem = new PhaseItem(0, this.phaseItems.length * 18, text, this.scene);
+		this.phaseItems.push(phaseItem);
+		this.add(phaseItem);
+		return phaseItem;
+	}, //end addPhaseItem
+
+	moveSelectionUp: function () {
+
+	}, //end moveSelectionUp
+
+	moveSelectionDown: function () {
+
+	} //end moveSelectionDown
+}); //end Phases
+
+let EnemyPhases = new Phaser.Class({
+	Extends: Phases,
+
+	initialize: function (x, y, scene) {
+		Phases.call(this, x, y, scene);
+		this.addPhaseItem("Main");
+		this.addPhaseItem("Attack");
+		this.addPhaseItem("Block");
+		this.addPhaseItem("Main 2");
+	} //end initialize
+});
+
+let PlayerPhases = new Phaser.Class({
+	Extends: Phases,
+
+	initialize: function (x, y, scene) {
+		Phases.call(this, x, y, scene);
+		this.addPhaseItem("Main");
+		this.addPhaseItem("Attack");
+		this.addPhaseItem("Block");
+		this.addPhaseItem("Main 2");
+	} //end initialize
+});
