@@ -1,3 +1,6 @@
+/*global Phaser, BootScene, WorldScene, DialogBoxScene, MatchScene, UIScene*/
+/*eslint no-undef: "error"*/
+
 let config = {
 	type: Phaser.AUTO,
 	parent: "game-container",
@@ -9,14 +12,15 @@ let config = {
 		default: "arcade",
 		arcade: {
 			gravity: { y: 0 },
-			debug: true // set to true to view zones
+			debug: false // set to true to view zones
 		}
 	},
 	scene: [
 		BootScene,
 		WorldScene,
-		DialogScene,
-		MatchScene
+		DialogBoxScene,
+		MatchScene,
+		UIScene
 	]
 };
 

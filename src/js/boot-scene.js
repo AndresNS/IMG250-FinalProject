@@ -1,3 +1,6 @@
+/*global Phaser*/
+/*eslint no-undef: "error"*/
+
 let BootScene = new Phaser.Class({
 
 	Extends: Phaser.Scene,
