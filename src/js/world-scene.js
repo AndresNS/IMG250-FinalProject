@@ -8,7 +8,7 @@ let WorldScene = new Phaser.Class({
 		Phaser.Scene.call(this, {
 			key: "WorldScene"
 		});
-	},
+	},//end initialize
 
 	preload: function () {}, //end preload
 
@@ -156,7 +156,7 @@ let DialogBoxScene = new Phaser.Class({
 		Phaser.Scene.call(this, {
 			key: "DialogBoxScene"
 		});
-	},
+	},//end initialize
 
 	create: function (npc) {
 		//dialog box
@@ -184,7 +184,7 @@ let DialogBoxScene = new Phaser.Class({
 
 		//user inputs
 		this.keys = this.input.keyboard.addKey(controls.INTERACT);
-	},
+	},//end create
 
 	update: function () {
 		if (this.keys.isDown) {
@@ -203,5 +203,5 @@ let DialogBoxScene = new Phaser.Class({
 				useAdvancedWrap: true
 			}
 		});
-	}
+	}//end addMessage
 }); //end DialogBoxScene

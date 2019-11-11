@@ -23,7 +23,7 @@ const npcMessages = Object.freeze({
 		GREET: "Hello, I'm Nissa Revane!",
 		VICTORY: "You win!",
 		DEFEAT: "You lose!"
-	},
+	}
 
 });
 
