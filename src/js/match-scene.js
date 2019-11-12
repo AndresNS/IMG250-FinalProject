@@ -12,6 +12,11 @@ let MatchScene = new Phaser.Class({
 
 	preload: function () {
 		this.load.image("matchBg", "assets/match-bg.png");
+		this.load.image("white", "assets/whiteMana.png");
+		this.load.image("blue", "assets/blueMana.png");
+		this.load.image("black", "assets/blackMana.png");
+		this.load.image("red", "assets/redMana.png");
+		this.load.image("green", "assets/greenMana.png");
 	}, //end preload
 
 	create: function () {
@@ -194,6 +199,11 @@ let UIScene = new Phaser.Class({
 
 
 		//Mana
+		this.enemyManaCounter = new Mana(21, 20, this, "red");
+		this.infoContainer.add(this.enemyManaCounter);
+
+		this.playerManaCounter = new Mana(21, 157, this, "green");
+		this.infoContainer.add(this.playerManaCounter);
 
 
 		//Initial state
@@ -325,39 +335,44 @@ let LifeCounter = new Phaser.Class({
 
 }); //end LifeCounter
 
-let ManaColor = new Phaser.Class({
-	Extends: Phaser.GameObjects.Image,
+let ManaText = new Phaser.Class({
+	Extends: Phaser.GameObjects.Text,
 
-	initialize: function ManaColor(x, y, image, scene) {
-		Phaser.GameObjects.Image.call(this, scene, x, y, image, {
+	initialize: function ManaText(x, y, text, scene) {
+		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
 			color: "#eeeeee",
 			align: "left",
-			fontSize: 20,
+			fontSize: 15,
 			stroke: "#000000",
 			strokeThickness: 3
+		});
 	}
 });
 
 let Mana = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
 
-	initialize: function Mana(x, y, scene) {
+	initialize: function Mana(x, y, scene, color) {
 		Phaser.GameObjects.Container.call(this, scene, x, y);
 
+		this.totalMana = 0;
+		this.currentMana = 0;
 		this.x = x;
 		this.y = y;
+
+		let manaColor = this.scene.add.sprite(x, y, color);
+		manaColor.setScale(0.4);
+
+		this.manaText = new ManaText(-16, 15, `${this.currentMana}/${this.totalMana}`  , this.scene);
+		this.add(this.manaText);
 	}, //end initialize
 
-	setColor: function (color) {
-
-	},
-
 	addMana: function () {
-
+		this.totalMana++;
 	}, //end addMana
 
-	spendMana: function (amount) {
-
+	spendMana: function (quantity) {
+		this.currentMana = this.currentMana - quantity;
 	}, //end spendMana
 
 }); //end Mana
