@@ -1,4 +1,4 @@
-/*global Phaser*/
+/*global Phaser, gameSettings*/
 /*eslint no-undef: "error"*/
 
 let MatchScene = new Phaser.Class({
@@ -178,12 +178,23 @@ let UIScene = new Phaser.Class({
 		this.optionsMenuContainer.add(this.optionsMenu);
 
 		//Phases
-		this.enemyPhases = new EnemyPhases(355, 18, this);
+		this.enemyPhases = new PhasesList(355, 18, this);
 		this.phasesContainer.add(this.enemyPhases);
-		
-		this.playerPhases = new PlayerPhases(355, 118, this);
+
+		this.playerPhases = new PhasesList(355, 118, this);
 		this.playerPhases.phaseItems[0].setActive(); //set active according to starting player
 		this.phasesContainer.add(this.playerPhases);
+
+		//Life
+		this.enemyLifeCounter = new LifeCounter(7, 67, this);
+		this.infoContainer.add(this.enemyLifeCounter);
+
+		this.playerLifeCounter = new LifeCounter(7, 103, this);
+		this.infoContainer.add(this.playerLifeCounter);
+
+
+		//Mana
+
 
 		//Initial state
 		this.currentMenu = this.optionsMenu;
@@ -197,7 +208,6 @@ let UIScene = new Phaser.Class({
 	}, //end create
 
 	onKeyInput: function (event) {
-
 		switch (event.code) {
 			case "ArrowUp":
 				this.currentMenu.moveSelectionUp();
@@ -212,7 +222,6 @@ let UIScene = new Phaser.Class({
 				this.currentMenu.moveSelectionLeft();
 				break;
 		}
-
 	} //end onKeyInput
 
 }); //end UIScene
@@ -226,7 +235,7 @@ let PhaseItem = new Phaser.Class({
 			align: "left",
 			fontSize: 11
 		});
-	},
+	}, //end initialize
 
 	setActive: function () {
 		this.setStyle({
@@ -264,35 +273,91 @@ let Phases = new Phaser.Class({
 		return phaseItem;
 	}, //end addPhaseItem
 
-	moveSelectionUp: function () {
+	nextPhase: function () {
+
+	}, //end nextPhase
+
+}); //end Phases
+
+let PhasesList = new Phaser.Class({
+	Extends: Phases,
+
+	initialize: function (x, y, scene) {
+		Phases.call(this, x, y, scene);
+		this.addPhaseItem("Main");
+		this.addPhaseItem("Attack");
+		this.addPhaseItem("Block");
+		this.addPhaseItem("Main 2");
+	} //end initialize
+}); //end PhasesList
+
+let LifeText = new Phaser.Class({
+	Extends: Phaser.GameObjects.Text,
+
+	initialize: function LifeText(x, y, text, scene) {
+		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
+			color: "#eeeeee",
+			align: "left",
+			fontSize: 20,
+			stroke: "#000000",
+			strokeThickness: 3
+		});
+	}
+});
+
+let LifeCounter = new Phaser.Class({
+	Extends: Phaser.GameObjects.Container,
+
+	initialize: function LifeCounter(x, y, scene) {
+		Phaser.GameObjects.Container.call(this, scene, x, y);
+
+		this.lifeTotal = gameSettings.STARTING_LIFE_TOTAL;
+		this.x = x;
+		this.y = y;
+
+		this.lifeText = new LifeText(0, 0, this.lifeTotal, this.scene);
+		this.add(this.lifeText);
+	}, //end initialize
+
+	changeLife: function (amount) {
 
 	}, //end moveSelectionUp
 
-	moveSelectionDown: function () {
+}); //end LifeCounter
 
-	} //end moveSelectionDown
-}); //end Phases
+let ManaColor = new Phaser.Class({
+	Extends: Phaser.GameObjects.Image,
 
-let EnemyPhases = new Phaser.Class({
-	Extends: Phases,
-
-	initialize: function (x, y, scene) {
-		Phases.call(this, x, y, scene);
-		this.addPhaseItem("Main");
-		this.addPhaseItem("Attack");
-		this.addPhaseItem("Block");
-		this.addPhaseItem("Main 2");
-	} //end initialize
+	initialize: function ManaColor(x, y, image, scene) {
+		Phaser.GameObjects.Image.call(this, scene, x, y, image, {
+			color: "#eeeeee",
+			align: "left",
+			fontSize: 20,
+			stroke: "#000000",
+			strokeThickness: 3
+	}
 });
 
-let PlayerPhases = new Phaser.Class({
-	Extends: Phases,
+let Mana = new Phaser.Class({
+	Extends: Phaser.GameObjects.Container,
 
-	initialize: function (x, y, scene) {
-		Phases.call(this, x, y, scene);
-		this.addPhaseItem("Main");
-		this.addPhaseItem("Attack");
-		this.addPhaseItem("Block");
-		this.addPhaseItem("Main 2");
-	} //end initialize
-});
+	initialize: function Mana(x, y, scene) {
+		Phaser.GameObjects.Container.call(this, scene, x, y);
+
+		this.x = x;
+		this.y = y;
+	}, //end initialize
+
+	setColor: function (color) {
+
+	},
+
+	addMana: function () {
+
+	}, //end addMana
+
+	spendMana: function (amount) {
+
+	}, //end spendMana
+
+}); //end Mana

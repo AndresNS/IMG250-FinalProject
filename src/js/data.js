@@ -32,3 +32,7 @@ const controls = Object.freeze({
 	CANCEL: "S",
 	OPEN_MENU: "ENTER"
 });
+
+const gameSettings = Object.freeze({
+	STARTING_LIFE_TOTAL: 20
+});
