@@ -1,4 +1,4 @@
-/*global Phaser, npcMessages, controls*/
+/*global Phaser, npcMessages, controls, gameSettings*/
 /*eslint no-undef: "error"*/
 
 let WorldScene = new Phaser.Class({
@@ -118,15 +118,15 @@ let WorldScene = new Phaser.Class({
 
 		// Horizontal movement
 		if (this.cursors.left.isDown) {
-			this.player.body.setVelocityX(-2500);
+			this.player.body.setVelocityX(-gameSettings.WALK_SPEED);
 		} else if (this.cursors.right.isDown) {
-			this.player.body.setVelocityX(2500);
+			this.player.body.setVelocityX(gameSettings.WALK_SPEED);
 		}
 		// Vertical movement
 		if (this.cursors.up.isDown) {
-			this.player.body.setVelocityY(-2500);
+			this.player.body.setVelocityY(-gameSettings.WALK_SPEED);
 		} else if (this.cursors.down.isDown) {
-			this.player.body.setVelocityY(2500);
+			this.player.body.setVelocityY(gameSettings.WALK_SPEED);
 		}
 
 		//character animations

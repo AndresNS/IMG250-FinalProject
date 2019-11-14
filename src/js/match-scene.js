@@ -202,7 +202,7 @@ let UIScene = new Phaser.Class({
 		this.enemyManaCounter = new Mana(21, 20, this, "red");
 		this.infoContainer.add(this.enemyManaCounter);
 
-		this.playerManaCounter = new Mana(21, 157, this, "green");
+		this.playerManaCounter = new Mana(21, 153, this, "green");
 		this.infoContainer.add(this.playerManaCounter);
 
 
@@ -312,8 +312,8 @@ let LifeText = new Phaser.Class({
 			stroke: "#000000",
 			strokeThickness: 3
 		});
-	}
-});
+	}//end initialize
+});//end LifeText
 
 let LifeCounter = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
@@ -346,8 +346,8 @@ let ManaText = new Phaser.Class({
 			stroke: "#000000",
 			strokeThickness: 3
 		});
-	}
-});
+	}//end initialize
+}); //end ManaText
 
 let Mana = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
