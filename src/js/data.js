@@ -38,6 +38,14 @@ const gameSettings = Object.freeze({
 	STARTING_LIFE_TOTAL: 20
 });
 
+const colors = Object.freeze({
+	WHITE: "W",
+	BLUE: "U",
+	BLACK: "B",
+	RED: "R",
+	GREEN: "G",
+});
+
 const playerDeck = [{
 	name: "playerCard1",
 	color: "w",

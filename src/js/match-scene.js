@@ -60,23 +60,7 @@ let MatchScene = new Phaser.Class({
 			this.nextTurn(enemy);
 		}
 
-		let cardsPromises = [];
-
-		for(let i=0; i<whiteCards.length; i++){
-			let url = `https://api.scryfall.com/cards/${whiteCards[i]}`;
-			cardsPromises[i] = fetch(url).then(response => {
-				return response.json();
-			}).catch(e => {
-				console.error(`There has been a problem while fetching resource ${url}: ${e.message}`);
-			}).finally(() => {
-				console.log(`fetch attempt for "${whiteCards[i]}" finished.`);
-			});
-		}
-
-
-		Promise.all(cardsPromises).then(values => {
-			console.log(values);
-		});
+		
 		
 
 	}, //end startMatch
@@ -483,10 +467,10 @@ let Mana = new Phaser.Class({
 
 }); //end Mana
 
-let Card = new Phaser.Class({
+let CardUI = new Phaser.Class({
 	Extends: Phaser.GameObjects.Sprite,
 
-	initialize: function Card(scene, x, y, texture, frame, cost, power, toughness, color) {
+	initialize: function CardUI(scene, x, y, texture, frame, cost, power, toughness, color) {
 		Phaser.GameObjects.Sprite.call(this, scene, x, y, texture, frame);
 
 		this.cost = cost;
@@ -511,12 +495,12 @@ let Card = new Phaser.Class({
 	resetDamage: function () {
 
 	} //end resetDamage
-}); //end Card
+}); //end CardUI
 
-let Deck = new Phaser.Class({
+let DeckUI = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
 
-	initialize: function Deck(x, y, scene) {
+	initialize: function DeckUI(x, y, scene) {
 		Phaser.GameObjects.Container.call(this, scene, x, y);
 		this.cards = [];
 		this.x = x;
@@ -526,7 +510,7 @@ let Deck = new Phaser.Class({
 	drawCard: function () {
 
 	}
-});
+}); //end DeckUI
 
 let Hand = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
@@ -553,7 +537,7 @@ let Hand = new Phaser.Class({
 	moveSelectionRight: function () {
 
 	}
-});
+}); //end Hand
 
 function Player(type, life, deck, hand) {
 	this.type = type;
