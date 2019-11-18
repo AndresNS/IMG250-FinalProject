@@ -1,4 +1,4 @@
-/*global Phaser, gameSettings, playerDeck, enemyDeck*/
+/*global Phaser, gameSettings, playerDeck, enemyDeck, whiteCards*/
 /*eslint no-undef: "error"*/
 
 let MatchScene = new Phaser.Class({
@@ -40,11 +40,11 @@ let MatchScene = new Phaser.Class({
 		enemy.hand = [];
 
 		//draw hand
-		for(let i=0; i<3; i++){
+		for (let i = 0; i < 3; i++) {
 			player.hand[i] = player.deck[0];
-			player.deck.splice(0,1);
+			player.deck.splice(0, 1);
 			enemy.hand[i] = enemy.deck[0];
-			enemy.deck.splice(0,1);
+			enemy.deck.splice(0, 1);
 		}
 
 		console.log(player.hand);
@@ -52,22 +52,52 @@ let MatchScene = new Phaser.Class({
 		console.log(enemy.hand);
 		console.log(enemy.deck);
 
-		if(this.chooseFirstPlayer()){
+		if (this.chooseFirstPlayer()) {
 			//player starts
 			this.nextTurn(player);
-		}else{
+		} else {
 			//enemy starts
 			this.nextTurn(enemy);
 		}
 
+		let cardsPromises = [];
+
+		for(let i=0; i<whiteCards.length; i++){
+			let url = `https://api.scryfall.com/cards/${whiteCards[i]}`;
+			cardsPromises[i] = fetch(url).then(response => {
+				return response.json();
+			}).catch(e => {
+				console.error(`There has been a problem while fetching resource ${url}: ${e.message}`);
+			}).finally(() => {
+				console.log(`fetch attempt for "${whiteCards[i]}" finished.`);
+			});
+		}
+
+
+		Promise.all(cardsPromises).then(values => {
+			console.log(values);
+		});
+		
+
 	}, //end startMatch
 
 	nextTurn: function (player) {
-		
+		//add mana
+
+		//draw card
+
+		//next phase (main)
+		//play cards
+
+		//next phase (attack)
+
+		//next phase (block)
+
+		//next phase (main2)
 
 	}, //end nextTurn
 
-	nextPhase: function () {
+	nextPhase: function (currentPhase) {
 		let ui = this.scene.get("UIScene");
 		console.log(this.scene);
 
@@ -77,8 +107,19 @@ let MatchScene = new Phaser.Class({
 
 	}, //end endMatch
 
-	checkEndMatch: function () {
+	checkEndMatch: function (playerLife, enemyLife) {
+		let victory = false;
+		let defeat = false;
 
+		if (playerLife <= 0) {
+			defeat = true;
+		}
+
+		if (enemyLife <= 0) {
+			victory = true;
+		}
+
+		return victory || defeat;
 	}, //end endMatch
 
 	loadEnemyDeck: function () {
@@ -89,8 +130,8 @@ let MatchScene = new Phaser.Class({
 
 	}, //end loadPlayerDeck
 
-	chooseFirstPlayer: function(){
-		if(Math.random() < 0.5){
+	chooseFirstPlayer: function () {
+		if (Math.random() < 0.5) {
 			return true;
 		}
 		return false;
@@ -520,4 +561,3 @@ function Player(type, life, deck, hand) {
 	this.deck = deck;
 	this.hand = hand;
 }
-
