@@ -1,4 +1,4 @@
-/*global Phaser, gameSettings*/
+/*global Phaser, gameSettings, playerDeck, enemyDeck*/
 /*eslint no-undef: "error"*/
 
 let MatchScene = new Phaser.Class({
@@ -24,11 +24,77 @@ let MatchScene = new Phaser.Class({
 		matchBg.setOrigin(0, 0);
 
 		this.scene.run("UIScene");
+
+		this.startMatch();
 	}, //end create
 
-	update: function () {
+	startMatch: function () {
+		//load decks
+		this.playerDeck = Phaser.Utils.Array.Shuffle(playerDeck);
+		this.enemyDeck = Phaser.Utils.Array.Shuffle(enemyDeck);
 
-	} //end update
+		let player = new Player("player", gameSettings.STARTING_LIFE_TOTAL, this.playerDeck);
+		let enemy = new Player("enemy", gameSettings.STARTING_LIFE_TOTAL, this.enemyDeck);
+
+		player.hand = [];
+		enemy.hand = [];
+
+		//draw hand
+		for(let i=0; i<3; i++){
+			player.hand[i] = player.deck[0];
+			player.deck.splice(0,1);
+			enemy.hand[i] = enemy.deck[0];
+			enemy.deck.splice(0,1);
+		}
+
+		console.log(player.hand);
+		console.log(player.deck);
+		console.log(enemy.hand);
+		console.log(enemy.deck);
+
+		if(this.chooseFirstPlayer()){
+			//player starts
+			this.nextTurn(player);
+		}else{
+			//enemy starts
+			this.nextTurn(enemy);
+		}
+
+	}, //end startMatch
+
+	nextTurn: function (player) {
+		
+
+	}, //end nextTurn
+
+	nextPhase: function () {
+		let ui = this.scene.get("UIScene");
+		console.log(this.scene);
+
+	}, //end nextTurn
+
+	endMatch: function () {
+
+	}, //end endMatch
+
+	checkEndMatch: function () {
+
+	}, //end endMatch
+
+	loadEnemyDeck: function () {
+
+	}, //end loadEnemyDeck
+
+	loadPlayerDeck: function () {
+
+	}, //end loadPlayerDeck
+
+	chooseFirstPlayer: function(){
+		if(Math.random() < 0.5){
+			return true;
+		}
+		return false;
+	}
 
 }); //end MatchScene
 
@@ -94,7 +160,6 @@ let Menu = new Phaser.Class({
 
 		this.menuItems.push(menuItem);
 		this.add(menuItem);
-		// this.menuItemIndex++;
 
 		return menuItem;
 	}, //end addMenuItem
@@ -312,8 +377,8 @@ let LifeText = new Phaser.Class({
 			stroke: "#000000",
 			strokeThickness: 3
 		});
-	}//end initialize
-});//end LifeText
+	} //end initialize
+}); //end LifeText
 
 let LifeCounter = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
@@ -346,7 +411,7 @@ let ManaText = new Phaser.Class({
 			stroke: "#000000",
 			strokeThickness: 3
 		});
-	}//end initialize
+	} //end initialize
 }); //end ManaText
 
 let Mana = new Phaser.Class({
@@ -363,7 +428,7 @@ let Mana = new Phaser.Class({
 		let manaColor = this.scene.add.sprite(x, y, color);
 		manaColor.setScale(0.4);
 
-		this.manaText = new ManaText(-16, 15, `${this.currentMana}/${this.totalMana}`  , this.scene);
+		this.manaText = new ManaText(-16, 15, `${this.currentMana}/${this.totalMana}`, this.scene);
 		this.add(this.manaText);
 	}, //end initialize
 
@@ -376,3 +441,83 @@ let Mana = new Phaser.Class({
 	}, //end spendMana
 
 }); //end Mana
+
+let Card = new Phaser.Class({
+	Extends: Phaser.GameObjects.Sprite,
+
+	initialize: function Card(scene, x, y, texture, frame, cost, power, toughness, color) {
+		Phaser.GameObjects.Sprite.call(this, scene, x, y, texture, frame);
+
+		this.cost = cost;
+		this.power = power;
+		this.toughness = toughness;
+		this.color = color;
+		this.damage = 0;
+	}, //end initialize
+
+	attack: function () {
+
+	}, //end attack
+
+	block: function (target) {
+
+	}, //end block
+
+	takeDamage: function () {
+
+	}, //end takeDamage
+
+	resetDamage: function () {
+
+	} //end resetDamage
+}); //end Card
+
+let Deck = new Phaser.Class({
+	Extends: Phaser.GameObjects.Container,
+
+	initialize: function Deck(x, y, scene) {
+		Phaser.GameObjects.Container.call(this, scene, x, y);
+		this.cards = [];
+		this.x = x;
+		this.y = y;
+	},
+
+	drawCard: function () {
+
+	}
+});
+
+let Hand = new Phaser.Class({
+	Extends: Phaser.GameObjects.Container,
+
+	initialize: function Hand(x, y, scene) {
+		Phaser.GameObjects.Container.call(this, scene, x, y);
+		this.cards = [];
+		this.x = x;
+		this.y = y;
+	},
+
+	addCard: function () {
+
+	},
+
+	playCard: function (cardIndex) {
+
+	},
+
+	moveSelectionLeft: function () {
+
+	},
+
+	moveSelectionRight: function () {
+
+	}
+});
+
+function Player(type, life, deck, hand) {
+	this.type = type;
+	this.life = life;
+	this.deck = deck;
+	this.hand = hand;
+}
+
