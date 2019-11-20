@@ -3,7 +3,6 @@
 # References
 
 ### Phaser Documentation
-- https://phaser.io/docs/2.6.2/index
 - https://photonstorm.github.io/phaser3-docs/index.html
 - https://rexrainbow.github.io/phaser3-rex-notes/docs/site/index.html
 

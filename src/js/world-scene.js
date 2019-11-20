@@ -8,7 +8,7 @@ let WorldScene = new Phaser.Class({
 		Phaser.Scene.call(this, {
 			key: "WorldScene"
 		});
-	},//end initialize
+	}, //end initialize
 
 	preload: function () {}, //end preload
 
@@ -145,56 +145,8 @@ let WorldScene = new Phaser.Class({
 
 	onEnemyMeet: function (player, zone) {
 		this.scene.pause("WorldScene");
-		this.scene.launch("DialogBoxScene", zone.name, this.loadPlayerDeck());
-	}, //end onEnemyMeet
-
-	loadPlayerDeck: function (){
-		let playerDeck = new Deck(colors.WHITE);
-
-		//1 mana
-		playerDeck.addCard(whiteCards[1], 4);
-		playerDeck.addCard(whiteCards[3], 4);
-		
-		//2 mana
-		playerDeck.addCard(whiteCards[5], 4);
-		playerDeck.addCard(whiteCards[6], 4);
-		playerDeck.addCard(whiteCards[7], 2);
-		playerDeck.addCard(whiteCards[8], 4);
-		
-		//3 mana
-		playerDeck.addCard(whiteCards[9], 4);
-		playerDeck.addCard(whiteCards[10], 4);
-		playerDeck.addCard(whiteCards[13], 4);
-		
-		//4 mana
-		playerDeck.addCard(whiteCards[15], 2);
-		playerDeck.addCard(whiteCards[16], 2);
-		playerDeck.addCard(whiteCards[18], 2);
-
-		//Get cards from scryfall api
-		let cardsPromises = [];
-
-		for(let i=0; i<Object.keys(playerDeck.cardsQty).length; i++){
-			let url = `https://api.scryfall.com/cards/${Object.keys(playerDeck.cardsQty)[i]}`;
-			cardsPromises[i] = fetch(url).then(response => {
-				return response.json();
-			}).catch(e => {
-				console.error(`There has been a problem while fetching resource "${url}": ${e.message}`);
-			}).finally(() => {
-				console.log(`fetch attempt for "${Object.keys(playerDeck.cardsQty)[i]}" finished.`);
-			});
-		}
-
-		Promise.all(cardsPromises).then(cards => {
-			for(let i=0; i<cards.length; i++){
-				for(let j=0; j<playerDeck.cardsQty[cards[i].id]; j++){
-					playerDeck.deckCards.push(cards[i]);
-				}
-			}
-		});
-
-		return playerDeck;
-	} //end loadPlayerDeck
+		this.scene.launch("DialogBoxScene", zone.name);
+	} //end onEnemyMeet
 }); //end WorldScene
 
 let DialogBoxScene = new Phaser.Class({
@@ -204,7 +156,7 @@ let DialogBoxScene = new Phaser.Class({
 		Phaser.Scene.call(this, {
 			key: "DialogBoxScene"
 		});
-	},//end initialize
+	}, //end initialize
 
 	create: function (npc) {
 		//dialog box
@@ -232,13 +184,13 @@ let DialogBoxScene = new Phaser.Class({
 
 		//user inputs
 		this.keys = this.input.keyboard.addKey(controls.INTERACT);
-	},//end create
+	}, //end create
 
 	update: function () {
 		if (this.keys.isDown) {
 			this.scene.stop("DialogBoxScene");
 			this.scene.sleep("WorldScene");
-			this.scene.launch("MatchScene");
+			this.scene.launch("MatchScene", this.loadPlayerDeck());
 		}
 	}, //end update
 
@@ -251,14 +203,68 @@ let DialogBoxScene = new Phaser.Class({
 				useAdvancedWrap: true
 			}
 		});
-	}//end addMessage
+	}, //end addMessage
+
+	loadPlayerDeck: function () {
+		let playerDeck = new Deck(colors.WHITE);
+
+		//1 mana
+		playerDeck.addCard(whiteCards[1], 4);
+		playerDeck.addCard(whiteCards[3], 4);
+
+		//2 mana
+		playerDeck.addCard(whiteCards[5], 4);
+		playerDeck.addCard(whiteCards[6], 4);
+		playerDeck.addCard(whiteCards[7], 2);
+		playerDeck.addCard(whiteCards[8], 4);
+
+		//3 mana
+		playerDeck.addCard(whiteCards[9], 4);
+		playerDeck.addCard(whiteCards[10], 4);
+		playerDeck.addCard(whiteCards[13], 4);
+
+		//4 mana
+		playerDeck.addCard(whiteCards[15], 2);
+		playerDeck.addCard(whiteCards[16], 2);
+		playerDeck.addCard(whiteCards[18], 2);
+
+		//Get cards from scryfall api
+		let cardsPromises = [];
+
+		for (let i = 0; i < Object.keys(playerDeck.deckList).length; i++) {
+			let url = `https://api.scryfall.com/cards/${Object.keys(playerDeck.deckList)[i]}`;
+			cardsPromises[i] = fetch(url).then(response => {
+				return response.json();
+			}).catch(e => {
+				console.error(`There has been a problem while fetching resource "${url}": ${e.message}`);
+			});
+		}
+
+		Promise.all(cardsPromises).then(cards => {
+			for (let i = 0; i < cards.length; i++) {
+				for (let j = 0; j < playerDeck.deckList[cards[i].id]; j++) {
+					playerDeck.deckCards.push(cards[i]);
+				}
+			}
+		});
+
+		return playerDeck;
+	} //end loadPlayerDeck
 }); //end DialogBoxScene
 
 function Deck(color) {
 	this.color = color;
-	this.cardsQty = {};
+	this.deckList = {};
 	this.deckCards = [];
-	this.addCard = function(card, qty){
-		this.cardsQty[card] = qty;
+	this.addCard = function (card, qty) {
+		this.deckList[card] = qty;
+	};
+	this.drawCard = function () {
+		let card = this.deckCards[0];
+		this.deckCards.splice(0, 1);
+		return card;
+	};
+	this.shuffleDeck = function () {
+		this.deckCards = Phaser.Utils.Array.Shuffle(this.deckCards);
 	};
 }

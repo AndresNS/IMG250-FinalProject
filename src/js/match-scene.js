@@ -1,4 +1,4 @@
-/*global Phaser, gameSettings, playerDeck, enemyDeck, whiteCards*/
+/*global Phaser, gameSettings, enemyDeck*/
 /*eslint no-undef: "error"*/
 
 let MatchScene = new Phaser.Class({
@@ -19,38 +19,32 @@ let MatchScene = new Phaser.Class({
 		this.load.image("green", "assets/greenMana.png");
 	}, //end preload
 
-	create: function () {
+	create: function (playerDeck) {
 		let matchBg = this.add.sprite(0, 0, "matchBg");
 		matchBg.setOrigin(0, 0);
 
 		this.scene.run("UIScene");
 
-		this.startMatch();
+		this.startMatch(playerDeck);
 	}, //end create
 
-	startMatch: function () {
+	startMatch: function (playerDeck) {
 		//load decks
-		this.playerDeck = Phaser.Utils.Array.Shuffle(playerDeck);
+		//SHUFFLE DECKS
+		playerDeck.shuffleDeck();
 		this.enemyDeck = Phaser.Utils.Array.Shuffle(enemyDeck);
 
-		let player = new Player("player", gameSettings.STARTING_LIFE_TOTAL, this.playerDeck);
+		let player = new Player("player", gameSettings.STARTING_LIFE_TOTAL, playerDeck);
 		let enemy = new Player("enemy", gameSettings.STARTING_LIFE_TOTAL, this.enemyDeck);
-
-		player.hand = [];
-		enemy.hand = [];
 
 		//draw hand
 		for (let i = 0; i < 3; i++) {
-			player.hand[i] = player.deck[0];
-			player.deck.splice(0, 1);
-			enemy.hand[i] = enemy.deck[0];
-			enemy.deck.splice(0, 1);
+			player.hand.push(player.deck.deckCards.shift());
 		}
 
+		console.log(player.deck.deckCards);
 		console.log(player.hand);
-		console.log(player.deck);
-		console.log(enemy.hand);
-		console.log(enemy.deck);
+
 
 		if (this.chooseFirstPlayer()) {
 			//player starts
@@ -59,9 +53,6 @@ let MatchScene = new Phaser.Class({
 			//enemy starts
 			this.nextTurn(enemy);
 		}
-
-		
-		
 
 	}, //end startMatch
 
@@ -76,8 +67,10 @@ let MatchScene = new Phaser.Class({
 		//next phase (attack)
 
 		//next phase (block)
+		//checkEndMatch after damage is done
 
 		//next phase (main2)
+		//play cards
 
 	}, //end nextTurn
 
@@ -497,25 +490,10 @@ let CardUI = new Phaser.Class({
 	} //end resetDamage
 }); //end CardUI
 
-let DeckUI = new Phaser.Class({
+let HandUI = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
 
-	initialize: function DeckUI(x, y, scene) {
-		Phaser.GameObjects.Container.call(this, scene, x, y);
-		this.cards = [];
-		this.x = x;
-		this.y = y;
-	},
-
-	drawCard: function () {
-
-	}
-}); //end DeckUI
-
-let Hand = new Phaser.Class({
-	Extends: Phaser.GameObjects.Container,
-
-	initialize: function Hand(x, y, scene) {
+	initialize: function HandUI(x, y, scene) {
 		Phaser.GameObjects.Container.call(this, scene, x, y);
 		this.cards = [];
 		this.x = x;
@@ -537,11 +515,11 @@ let Hand = new Phaser.Class({
 	moveSelectionRight: function () {
 
 	}
-}); //end Hand
+}); //end HandUI
 
-function Player(type, life, deck, hand) {
+function Player(type, life, deck) {
 	this.type = type;
 	this.life = life;
 	this.deck = deck;
-	this.hand = hand;
+	this.hand = [];
 }
