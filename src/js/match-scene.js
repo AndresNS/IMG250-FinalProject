@@ -19,47 +19,58 @@ let MatchScene = new Phaser.Class({
 		this.load.image("green", "assets/greenMana.png");
 	}, //end preload
 
-	create: function (playerDeck) {
+	create: function (data) {
 		let matchBg = this.add.sprite(0, 0, "matchBg");
 		matchBg.setOrigin(0, 0);
 
-		this.scene.run("UIScene");
-
-		this.startMatch(playerDeck);
+		this.scene.run("UIScene", data[1]);
+		this.startMatch(data[0]);
 	}, //end create
 
 	startMatch: function (playerDeck) {
 		//load decks
-		//SHUFFLE DECKS
 		playerDeck.shuffleDeck();
-		this.enemyDeck = Phaser.Utils.Array.Shuffle(enemyDeck);
+		// this.enemyDeck = enemyDeck.shuffleDeck();
 
 		let player = new Player("player", gameSettings.STARTING_LIFE_TOTAL, playerDeck);
-		let enemy = new Player("enemy", gameSettings.STARTING_LIFE_TOTAL, this.enemyDeck);
+		// let enemy = new Player("enemy", gameSettings.STARTING_LIFE_TOTAL, this.enemyDeck);
 
 		//draw hand
 		for (let i = 0; i < 3; i++) {
 			player.hand.push(player.deck.deckCards.shift());
+			// enemy.hand.push(enemy.deck.deckCards.shift());
 		}
 
-		console.log(player.deck.deckCards);
-		console.log(player.hand);
+		this.playerReady();
 
+		this.nextTurn(player);
 
-		if (this.chooseFirstPlayer()) {
-			//player starts
-			this.nextTurn(player);
-		} else {
-			//enemy starts
-			this.nextTurn(enemy);
-		}
+		// if (this.chooseFirstPlayer()) {
+		// 	//player starts
+		// 	this.nextTurn(player);
+		// } else {
+		// 	//enemy starts
+		// 	this.nextTurn(enemy);
+		// }
 
 	}, //end startMatch
 
+	playerReady: function () {
+		let ui = this.scene.get("UIScene");
+
+
+		this.handContainer = this.add.container();
+		this.item = new PhaseItem(10, 10, "player.hand", ui);
+
+		this.handContainer.add(this.item);
+	},
+
 	nextTurn: function (player) {
 		//add mana
+		player.mana++;
 
 		//draw card
+		player.drawCard();
 
 		//next phase (main)
 		//play cards
@@ -77,6 +88,9 @@ let MatchScene = new Phaser.Class({
 	nextPhase: function (currentPhase) {
 		let ui = this.scene.get("UIScene");
 		console.log(this.scene);
+
+
+
 
 	}, //end nextTurn
 
@@ -253,12 +267,13 @@ let UIScene = new Phaser.Class({
 		});
 	}, //end initialize
 
-	create: function () {
+	create: function (npc) {
 
 		//Menu containers
 		this.optionsMenuContainer = this.add.container();
 		this.phasesContainer = this.add.container();
 		this.infoContainer = this.add.container();
+
 
 		//Options Menu
 		this.optionsMenu = new OptionsMenu(15, 225, this);
@@ -282,12 +297,15 @@ let UIScene = new Phaser.Class({
 
 
 		//Mana
-		this.enemyManaCounter = new Mana(21, 20, this, "red");
+		this.enemyManaCounter = new Mana(21, 20, this, npc);
 		this.infoContainer.add(this.enemyManaCounter);
 
 		this.playerManaCounter = new Mana(21, 153, this, "green");
 		this.infoContainer.add(this.playerManaCounter);
 
+		//Hand
+		this.matchScene = this.scene.get("MatchScene");
+		this.matchScene.events.on("PlayerReady", this.loadHand, this);
 
 		//Initial state
 		this.currentMenu = this.optionsMenu;
@@ -296,7 +314,7 @@ let UIScene = new Phaser.Class({
 		this.input.keyboard.on("keydown", this.onKeyInput, this);
 
 
-		// this.matchScene = this.scene.get("MatchScene");
+
 
 	}, //end create
 
@@ -315,7 +333,13 @@ let UIScene = new Phaser.Class({
 				this.currentMenu.moveSelectionLeft();
 				break;
 		}
-	} //end onKeyInput
+	}, //end onKeyInput
+
+	loadHand: function (player) {
+		console.log("asd " + player);
+		// this.handContainer = this.add.container();
+		// this.handContainer = new HandUI(10, 10, player.hand);
+	}
 
 }); //end UIScene
 
@@ -493,11 +517,16 @@ let CardUI = new Phaser.Class({
 let HandUI = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
 
-	initialize: function HandUI(x, y, scene) {
+	initialize: function HandUI(x, y, scene, cards) {
 		Phaser.GameObjects.Container.call(this, scene, x, y);
-		this.cards = [];
+		this.cards = cards;
 		this.x = x;
 		this.y = y;
+
+		for (let i = 0; i < this.cards.length; i++) {
+			this.card[i] = this.scene.add.sprite(10, 10, this.cards[i]);
+		}
+
 	},
 
 	addCard: function () {
@@ -522,4 +551,7 @@ function Player(type, life, deck) {
 	this.life = life;
 	this.deck = deck;
 	this.hand = [];
+	this.drawCard = function () {
+		this.hand.push(this.deck.deckCards.shift());
+	};
 }

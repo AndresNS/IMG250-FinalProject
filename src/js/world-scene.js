@@ -162,7 +162,7 @@ let DialogBoxScene = new Phaser.Class({
 		//dialog box
 		let dialogbox = this.add.sprite(0, 240, "dialogbox");
 		dialogbox.setOrigin(0, 0);
-
+		this.npc = npc;
 		/*eslint indent: ["error", "tab", { "SwitchCase": 1 }]*/
 		switch (npc) {
 			case "white":
@@ -190,7 +190,12 @@ let DialogBoxScene = new Phaser.Class({
 		if (this.keys.isDown) {
 			this.scene.stop("DialogBoxScene");
 			this.scene.sleep("WorldScene");
-			this.scene.launch("MatchScene", this.loadPlayerDeck());
+
+			let data = [
+				this.loadEnemyDeck(),
+				this.npc
+			];
+			this.scene.launch("MatchScene", data);
 		}
 	}, //end update
 
@@ -249,7 +254,26 @@ let DialogBoxScene = new Phaser.Class({
 		});
 
 		return playerDeck;
-	} //end loadPlayerDeck
+	}, //end loadPlayerDeck
+
+	loadEnemyDeck: function () {
+		let enemigoDeck = new Deck(colors.BLACK);
+
+		enemigoDeck.addCard(mazoenemigo[0], 4);
+		enemigoDeck.addCard(mazoenemigo[1], 4);
+		enemigoDeck.addCard(mazoenemigo[2], 4);
+		enemigoDeck.addCard(mazoenemigo[3], 4);
+		enemigoDeck.addCard(mazoenemigo[4], 4);
+		enemigoDeck.addCard(mazoenemigo[5], 4);
+
+		for (let i = 0; i < 6; i++) {
+			for (let j = 0; j < 4; j++) {
+				enemigoDeck.deckCards.push(mazoenemigo[i]);
+			}
+		}
+
+		return enemigoDeck;
+	} //end loadEnemyDeck
 }); //end DialogBoxScene
 
 function Deck(color) {

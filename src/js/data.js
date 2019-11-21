@@ -47,7 +47,7 @@ const colors = Object.freeze({
 });
 
 
-let enemyDeck = [{
+let mazoenemigo = [{
 		name: "enemyCard1",
 		color: "w",
 		cost: 3,
