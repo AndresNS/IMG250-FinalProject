@@ -23,25 +23,28 @@ let MatchScene = new Phaser.Class({
 		let matchBg = this.add.sprite(0, 0, "matchBg");
 		matchBg.setOrigin(0, 0);
 
-		this.scene.run("UIScene", data[1]);
-		this.startMatch(data[0]);
+		this.scene.run("UIScene", data[2]);
+		this.startMatch(data);
 	}, //end create
 
-	startMatch: function (playerDeck) {
+	startMatch: function (decks) {
 		//load decks
+		let playerDeck = decks[0];
+		let enemyDeck = decks[1];
+
 		playerDeck.shuffleDeck();
-		// this.enemyDeck = enemyDeck.shuffleDeck();
+		enemyDeck.shuffleDeck();
 
 		let player = new Player("player", gameSettings.STARTING_LIFE_TOTAL, playerDeck);
-		// let enemy = new Player("enemy", gameSettings.STARTING_LIFE_TOTAL, this.enemyDeck);
+		let enemy = new Player("enemy", gameSettings.STARTING_LIFE_TOTAL, enemyDeck);
 
 		//draw hand
 		for (let i = 0; i < 3; i++) {
 			player.hand.push(player.deck.deckCards.shift());
-			// enemy.hand.push(enemy.deck.deckCards.shift());
+			enemy.hand.push(enemy.deck.deckCards.shift());
 		}
 
-		this.playerReady();
+		this.loadHand(player.hand);
 
 		this.nextTurn(player);
 
@@ -55,14 +58,14 @@ let MatchScene = new Phaser.Class({
 
 	}, //end startMatch
 
-	playerReady: function () {
+	loadHand: function (cards) {
 		let ui = this.scene.get("UIScene");
-
+		this.cards = [];
 
 		this.handContainer = this.add.container();
-		this.item = new PhaseItem(10, 10, "player.hand", ui);
+		this.hand = new HandUI(0, 0, ui, cards);
 
-		this.handContainer.add(this.item);
+		this.handContainer.add(this.hand);
 	},
 
 	nextTurn: function (player) {
@@ -86,10 +89,6 @@ let MatchScene = new Phaser.Class({
 	}, //end nextTurn
 
 	nextPhase: function (currentPhase) {
-		let ui = this.scene.get("UIScene");
-		console.log(this.scene);
-
-
 
 
 	}, //end nextTurn
@@ -303,10 +302,6 @@ let UIScene = new Phaser.Class({
 		this.playerManaCounter = new Mana(21, 153, this, "green");
 		this.infoContainer.add(this.playerManaCounter);
 
-		//Hand
-		this.matchScene = this.scene.get("MatchScene");
-		this.matchScene.events.on("PlayerReady", this.loadHand, this);
-
 		//Initial state
 		this.currentMenu = this.optionsMenu;
 
@@ -333,13 +328,7 @@ let UIScene = new Phaser.Class({
 				this.currentMenu.moveSelectionLeft();
 				break;
 		}
-	}, //end onKeyInput
-
-	loadHand: function (player) {
-		console.log("asd " + player);
-		// this.handContainer = this.add.container();
-		// this.handContainer = new HandUI(10, 10, player.hand);
-	}
+	} //end onKeyInput
 
 }); //end UIScene
 
@@ -522,10 +511,12 @@ let HandUI = new Phaser.Class({
 		this.cards = cards;
 		this.x = x;
 		this.y = y;
+		this.card = [];
 
 		for (let i = 0; i < this.cards.length; i++) {
-			this.card[i] = this.scene.add.sprite(10, 10, this.cards[i]);
+			this.scene.add.sprite(i * 40, 0, this.cards[i].image_uris.small);
 		}
+
 
 	},
 

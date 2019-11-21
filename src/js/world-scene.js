@@ -192,6 +192,7 @@ let DialogBoxScene = new Phaser.Class({
 			this.scene.sleep("WorldScene");
 
 			let data = [
+				this.loadPlayerDeck(),
 				this.loadEnemyDeck(),
 				this.npc
 			];
