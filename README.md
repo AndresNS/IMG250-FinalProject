@@ -6,11 +6,11 @@
 - https://photonstorm.github.io/phaser3-docs/index.html
 - https://rexrainbow.github.io/phaser3-rex-notes/docs/site/index.html
 
-### Magic: The Gathering API Documentation
-- https://docs.magicthegathering.io/
+### Scryfall API Documentation (Magic: The Gathering)
 - https://scryfall.com/docs/api
 
-### Tutorials
+### Phaser Examples
+- http://labs.phaser.io/
 - https://gamedevacademy.org/how-to-create-a-turn-based-rpg-game-in-phaser-3-part-1/
 - http://phaser.io/tutorials/making-your-first-phaser-3-game/part1
 - https://gamedevacademy.org/phaser-3-tutorial/

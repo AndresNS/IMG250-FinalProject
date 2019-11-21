@@ -513,11 +513,9 @@ let HandUI = new Phaser.Class({
 		this.y = y;
 		this.card = [];
 
-		for (let i = 0; i < this.cards.length; i++) {
-			this.scene.add.sprite(i * 40, 0, this.cards[i].image_uris.small);
-		}
-
-
+		// for (let i = 0; i < this.cards.length; i++) {
+		// 	this.scene.add.sprite(i * 40, 0, this.cards[i].image_uris.small);
+		// }
 	},
 
 	addCard: function () {
