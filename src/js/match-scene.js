@@ -10,6 +10,10 @@ let MatchScene = new Phaser.Class({
 		});
 	}, //end initialize
 
+	init: function (data) {
+		this.imageUrl = data[0].deckCards[0].image_uris.small;
+	},
+
 	preload: function () {
 		this.load.image("matchBg", "assets/match-bg.png");
 		this.load.image("white", "assets/whiteMana.png");
@@ -17,14 +21,35 @@ let MatchScene = new Phaser.Class({
 		this.load.image("black", "assets/blackMana.png");
 		this.load.image("red", "assets/redMana.png");
 		this.load.image("green", "assets/greenMana.png");
+		// let cardImages = 
+		this.load.image("card", this.imageUrl);
 	}, //end preload
 
 	create: function (data) {
 		let matchBg = this.add.sprite(0, 0, "matchBg");
 		matchBg.setOrigin(0, 0);
 
-		this.scene.run("UIScene", data[2]);
-		this.startMatch(data);
+		let match = this;
+
+		let loadingMsg = this.add.text(100, 100, "Loading decks...", {
+			color: "#eeeeee",
+			align: "left",
+			fontSize: 20,
+			stroke: "#000000",
+			strokeThickness: 3
+		});
+		loadingMsg.setOrigin(0, 0);
+
+		//pseudo loading decks
+		setTimeout(function () {
+			match.scene.run("UIScene", data[2]);
+			match.startMatch(data);
+			loadingMsg.destroy();
+		}, 2000);
+
+		// this.scene.run("UIScene", data[2]);
+		// this.startMatch(data);
+
 	}, //end create
 
 	startMatch: function (decks) {
@@ -48,6 +73,7 @@ let MatchScene = new Phaser.Class({
 
 		this.nextTurn(player);
 
+		// console.log(player);
 		// if (this.chooseFirstPlayer()) {
 		// 	//player starts
 		// 	this.nextTurn(player);
@@ -513,9 +539,11 @@ let HandUI = new Phaser.Class({
 		this.y = y;
 		this.card = [];
 
-		// for (let i = 0; i < this.cards.length; i++) {
-		// 	this.scene.add.sprite(i * 40, 0, this.cards[i].image_uris.small);
-		// }
+		for (let i = 0; i < this.cards.length; i++) {
+			// this.scene.load.image("card"+i, this.cards[i].image_uris.small);
+			let card = this.scene.add.sprite(i * 55 + 195, 250, "card");
+			card.setScale(0.36);
+		}
 	},
 
 	addCard: function () {

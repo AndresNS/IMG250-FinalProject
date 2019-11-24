@@ -196,7 +196,12 @@ let DialogBoxScene = new Phaser.Class({
 				this.loadEnemyDeck(),
 				this.npc
 			];
-			this.scene.launch("MatchScene", data);
+			
+			let world = this;
+			
+			setTimeout(function () {
+				world.scene.launch("MatchScene", data);
+			}, 3000);
 		}
 	}, //end update
 
