@@ -4,9 +4,8 @@
 let config = {
 	type: Phaser.AUTO,
 	parent: "game-container",
-	width: 400,
-	height: 300,
-	zoom: 2,
+	width: 800,
+	height: 600,
 	pixelArt: true,
 	physics: {
 		default: "arcade",

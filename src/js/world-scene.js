@@ -160,7 +160,8 @@ let DialogBoxScene = new Phaser.Class({
 
 	create: function (npc) {
 		//dialog box
-		let dialogbox = this.add.sprite(0, 240, "dialogbox");
+		let dialogbox = this.add.sprite(0, 480, "dialogbox");
+		dialogbox.setScale(2);
 		dialogbox.setOrigin(0, 0);
 		this.npc = npc;
 		/*eslint indent: ["error", "tab", { "SwitchCase": 1 }]*/
@@ -196,7 +197,7 @@ let DialogBoxScene = new Phaser.Class({
 				this.loadEnemyDeck(),
 				this.npc
 			];
-			
+
 			let world = this;
 			
 			setTimeout(function () {
@@ -206,11 +207,11 @@ let DialogBoxScene = new Phaser.Class({
 	}, //end update
 
 	addMessage: function (text) {
-		this.message = this.add.text(15, 250, text, {
+		this.message = this.add.text(30, 500, text, {
 			color: "#ffffff",
-			fontSize: 13,
+			fontSize: 26,
 			wordWrap: {
-				width: 370,
+				width: 740,
 				useAdvancedWrap: true
 			}
 		});

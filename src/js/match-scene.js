@@ -37,6 +37,7 @@ let MatchScene = new Phaser.Class({
 
 	create: function (data) {
 		let matchBg = this.add.sprite(0, 0, "matchBg");
+		matchBg.setScale(2);
 		matchBg.setOrigin(0, 0);
 
 		this.scene.run("UIScene", data[2]);
@@ -151,9 +152,9 @@ let MenuItem = new Phaser.Class({
 
 	initialize: function MenuItem(x, y, text, scene) {
 		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
-			color: "#dddddd",
+			color: "#eeeeee",
 			align: "left",
-			fontSize: 13
+			fontSize: 26
 		});
 	},
 
@@ -161,13 +162,13 @@ let MenuItem = new Phaser.Class({
 		this.setStyle({
 			color: "#ffffff",
 			stroke: "#000000",
-			strokeThickness: 3
+			strokeThickness: 5
 		});
 	}, //end select
 
 	deselect: function () {
 		this.setStyle({
-			color: "#dddddd",
+			color: "#eeeeee",
 			stroke: "#000000",
 			strokeThickness: 0
 		});
@@ -193,14 +194,14 @@ let Menu = new Phaser.Class({
 		/*eslint indent: ["error", "tab", { "SwitchCase": 1 }]*/
 		switch (this.menuItems.length) {
 			case 1:
-				x = 75;
+				x = 150;
 				break;
 			case 2:
-				y = 30;
+				y = 60;
 				break;
 			case 3:
-				x = 75;
-				y = 30;
+				x = 150;
+				y = 60;
 				break;
 		}
 
@@ -292,31 +293,31 @@ let UIScene = new Phaser.Class({
 
 
 		//Options Menu
-		this.optionsMenu = new OptionsMenu(15, 225, this);
+		this.optionsMenu = new OptionsMenu(30, 450, this);
 		this.optionsMenu.menuItems[0].select();
 		this.optionsMenuContainer.add(this.optionsMenu);
 
 		//Phases
-		this.enemyPhases = new PhasesList(355, 18, this);
+		this.enemyPhases = new PhasesList(710, 36, this);
 		this.phasesContainer.add(this.enemyPhases);
 
-		this.playerPhases = new PhasesList(355, 118, this);
+		this.playerPhases = new PhasesList(710, 236, this);
 		this.playerPhases.phaseItems[0].setActive(); //set active according to starting player
 		this.phasesContainer.add(this.playerPhases);
 
 		//Life
-		this.enemyLifeCounter = new LifeCounter(7, 67, this);
+		this.enemyLifeCounter = new LifeCounter(16, 136, this);
 		this.infoContainer.add(this.enemyLifeCounter);
 
-		this.playerLifeCounter = new LifeCounter(7, 103, this);
+		this.playerLifeCounter = new LifeCounter(16, 208, this);
 		this.infoContainer.add(this.playerLifeCounter);
 
 
 		//Mana
-		this.enemyManaCounter = new Mana(21, 20, this, npc);
+		this.enemyManaCounter = new Mana(42, 40, this, npc);
 		this.infoContainer.add(this.enemyManaCounter);
 
-		this.playerManaCounter = new Mana(21, 153, this, "green");
+		this.playerManaCounter = new Mana(42, 306, this, "green");
 		this.infoContainer.add(this.playerManaCounter);
 
 		//Initial state
@@ -354,9 +355,9 @@ let PhaseItem = new Phaser.Class({
 
 	initialize: function PhaseItem(x, y, text, scene) {
 		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
-			color: "#eeeeee",
+			color: "#ffffff",
 			align: "left",
-			fontSize: 11
+			fontSize: 22
 		});
 	}, //end initialize
 
@@ -364,13 +365,13 @@ let PhaseItem = new Phaser.Class({
 		this.setStyle({
 			color: "#ffffff",
 			stroke: "#000",
-			strokeThickness: 3
+			strokeThickness: 4
 		});
 	}, //end setActive
 
 	setInactive: function () {
 		this.setStyle({
-			color: "#eeeeee",
+			color: "#ffffff",
 			stroke: "#000",
 			strokeThickness: 0
 		});
@@ -390,7 +391,7 @@ let Phases = new Phaser.Class({
 	}, //end initialize
 
 	addPhaseItem: function (text) {
-		var phaseItem = new PhaseItem(0, this.phaseItems.length * 18, text, this.scene);
+		var phaseItem = new PhaseItem(0, this.phaseItems.length * 36, text, this.scene);
 		this.phaseItems.push(phaseItem);
 		this.add(phaseItem);
 		return phaseItem;
@@ -421,9 +422,9 @@ let LifeText = new Phaser.Class({
 		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
 			color: "#eeeeee",
 			align: "left",
-			fontSize: 20,
+			fontSize: 40,
 			stroke: "#000000",
-			strokeThickness: 3
+			strokeThickness: 5
 		});
 	} //end initialize
 }); //end LifeText
@@ -455,9 +456,9 @@ let ManaText = new Phaser.Class({
 		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
 			color: "#eeeeee",
 			align: "left",
-			fontSize: 15,
+			fontSize: 30,
 			stroke: "#000000",
-			strokeThickness: 3
+			strokeThickness: 4
 		});
 	} //end initialize
 }); //end ManaText
@@ -474,9 +475,9 @@ let Mana = new Phaser.Class({
 		this.y = y;
 
 		let manaColor = this.scene.add.sprite(x, y, color);
-		manaColor.setScale(0.4);
+		// manaColor.setScale(0.8);
 
-		this.manaText = new ManaText(-16, 15, `${this.currentMana}/${this.totalMana}`, this.scene);
+		this.manaText = new ManaText(-29, 30, `${this.currentMana}/${this.totalMana}`, this.scene);
 		this.add(this.manaText);
 	}, //end initialize
 
@@ -531,8 +532,10 @@ let HandUI = new Phaser.Class({
 		this.card = [];
 
 		for (let i = 0; i < this.cards.length; i++) {
-			let card = this.scene.add.sprite(i * 55 + 195, 250, this.cards[i].id);
-			card.setScale(0.36);
+			// let card = this.scene.add.sprite(i * 55 + 195, 250, this.cards[i].id);
+			// card.setScale(0.36);
+			let card = this.scene.add.sprite(i * 110 + 390, 500, this.cards[i].id);
+			card.setScale(0.7);
 		}
 	},
 
