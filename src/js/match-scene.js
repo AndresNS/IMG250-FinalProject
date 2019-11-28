@@ -76,8 +76,8 @@ let MatchScene = new Phaser.Class({
 
 	loadHand: function (cards) {
 		let ui = this.scene.get("UIScene");
-		if (typeof ui.hand != "undefined") {
-			for(let i=0; i<ui.hand.card.length; i++){
+		if (typeof ui.handContainer !== "undefined") {
+			for (let i = 0; i < ui.hand.card.length; i++) {
 				ui.hand.card[i].destroy();
 			}
 		}
@@ -86,8 +86,6 @@ let MatchScene = new Phaser.Class({
 		ui.handContainer = ui.add.container();
 		ui.hand = new HandUI(0, 0, ui, cards);
 		ui.handContainer.add(ui.hand);
-
-
 	},
 
 	nextTurn: function (player) {
@@ -553,16 +551,22 @@ let Mana = new Phaser.Class({
 }); //end Mana
 
 let CardUI = new Phaser.Class({
-	Extends: Phaser.GameObjects.Sprite,
+	Extends: Phaser.GameObjects.Image,
 
 	initialize: function CardUI(scene, x, y, texture, frame, cost, power, toughness, color) {
-		Phaser.GameObjects.Sprite.call(this, scene, x, y, texture, frame);
-
+		Phaser.GameObjects.Image.call(this, scene, x, y, texture, frame);
+		this.x = x;
+		this.y = y;
 		this.cost = cost;
 		this.power = power;
 		this.toughness = toughness;
 		this.color = color;
 		this.damage = 0;
+
+		this.setScale(0.7);
+		scene.add.existing(this);
+		// let card = this.scene.add.sprite(this.x, this.y, id);
+		// card.setScale(0.7);
 	}, //end initialize
 
 	attack: function () {
@@ -613,15 +617,13 @@ let HandUI = new Phaser.Class({
 		this.selector;
 
 		for (let i = 0; i < this.cards.length; i++) {
-			let card = this.scene.add.sprite(i * 115 + 390, 500, this.cards[i].id);
-			card.setScale(0.7);
+			this.card[i] = new CardUI(scene, (i + 1) * 115 + 275, 500, this.cards[i].id, null, 1, 1, 1, "W");
 		}
-
 	},
 
 	addCard: function (card, hand) {
 		hand.push(card);
-	},
+	}, //end addCard
 
 	playCard: function (card, scene) {
 		let matchScene = scene.scene.get("MatchScene");
@@ -629,7 +631,7 @@ let HandUI = new Phaser.Class({
 		scene.playerBattlefield.addCard(scene.hand.cards[card], card, matchScene.player);
 		scene.playerBattlefieldContainer.add(scene.playerBattlefield);
 		matchScene.loadHand(matchScene.player.hand);
-	},
+	}, //end playCard
 
 	moveSelectionLeft: function (menu) {
 		if (this.selectorPosition > 0) {
@@ -637,7 +639,7 @@ let HandUI = new Phaser.Class({
 			this.selector.destroy();
 			this.createSelector(menu.scene, 115 * (this.selectorPosition), 0);
 		}
-	},
+	}, //end moveSelectionLeft
 
 	moveSelectionRight: function (menu) {
 		if (this.selectorPosition < this.cards.length - 1) {
@@ -645,7 +647,7 @@ let HandUI = new Phaser.Class({
 			this.selector.destroy();
 			this.createSelector(menu.scene, 115 * (this.selectorPosition), 0);
 		}
-	},
+	}, //end moveSelectionRight
 
 	createSelector: function (scene, x, y) {
 
