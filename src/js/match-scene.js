@@ -393,6 +393,7 @@ let UIScene = new Phaser.Class({
 					this.currentMenu.moveSelectionLeft();
 					break;
 				case controls.INTERACT:
+					this.currentMenu.menuItems[this.currentMenu.menuItemIndex].deselect();
 					this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
 					break;
 			}
@@ -406,7 +407,6 @@ let UIScene = new Phaser.Class({
 					this.currentMenu.moveSelectionLeft(this.currentMenu);
 					break;
 				case controls.INTERACT:
-					// this.currentMenu.playCard(this.currentMenu.cards[this.currentMenu.selectorPosition]);
 					this.currentMenu.playCard(this.currentMenu.selectorPosition, this);
 					break;
 			}
@@ -605,7 +605,6 @@ let Battlefield = new Phaser.Class({
 		
 		let card = new CardUI(this.scene, this.x * (this.cards.length + 1), this.y, cardObject.id, null, 1, 1, 1, "W");
 		this.cards.push(cardObject);
-		console.log(player);
 	}
 });
 
@@ -636,6 +635,9 @@ let HandUI = new Phaser.Class({
 		
 		scene.playerBattlefield.addCard(scene.hand.cards[card], card, matchScene.player);
 		matchScene.loadHand(matchScene.player.hand);
+		scene.currentMenu.selector.destroy();
+		scene.currentMenu = scene.optionsMenu;
+		scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
 	}, //end playCard
 
 	moveSelectionLeft: function (menu) {
