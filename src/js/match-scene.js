@@ -350,10 +350,10 @@ let UIScene = new Phaser.Class({
 		this.phasesContainer.add(this.playerPhases);
 
 		//Life
-		this.enemyLifeCounter = new LifeCounter(16, 136, this);
+		this.enemyLifeCounter = new LifeCounter(16, 136, this, gameSettings.STARTING_LIFE_TOTAL);
 		this.infoContainer.add(this.enemyLifeCounter);
 
-		this.playerLifeCounter = new LifeCounter(16, 208, this);
+		this.playerLifeCounter = new LifeCounter(16, 208, this, gameSettings.STARTING_LIFE_TOTAL);
 		this.infoContainer.add(this.playerLifeCounter);
 
 		//Mana
@@ -400,10 +400,12 @@ let UIScene = new Phaser.Class({
 					this.currentMenu.moveSelectionLeft(this.currentMenu);
 					break;
 				case controls.INTERACT:
-					if(this.currentMenu.name == "battlefield"){
-						this.currentMenu.declareAttacker(this.currentMenu.selectorPosition, this);
-						
-					}else{
+					if (this.currentMenu.name == "battlefield") {
+						// let matchScene = this.scene.get("MatchScene");
+						// console.log();
+						this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
+
+					} else {
 						this.currentMenu.playCard(this.currentMenu.selectorPosition, this);
 
 					}
@@ -496,20 +498,26 @@ let LifeText = new Phaser.Class({
 let LifeCounter = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
 
-	initialize: function LifeCounter(x, y, scene) {
+	initialize: function LifeCounter(x, y, scene, life) {
 		Phaser.GameObjects.Container.call(this, scene, x, y);
 
-		this.lifeTotal = gameSettings.STARTING_LIFE_TOTAL;
+		this.lifeTotal = life;
 		this.x = x;
 		this.y = y;
 
 		this.lifeText = new LifeText(0, 0, this.lifeTotal, this.scene);
 		this.add(this.lifeText);
-	}, //end initialize
+	} //end initialize
 
-	changeLife: function (amount) {
+	// createCounter: function(life, scene){
+	// 	this.lifeText = new LifeText(0, 0, life, scene);
+	// 	this.add(this.lifeText);
+	// }, //end createCounter
 
-	}, //end moveSelectionUp
+	// loseLife: function (amount) {
+	// 	this.destroy();
+	// 	this.createCounter(this.lifeTotal - amount, this.scene);
+	// }, //end moveSelectionUp
 
 }); //end LifeCounter
 
@@ -567,6 +575,7 @@ let CardUI = new Phaser.Class({
 		this.toughness = toughness;
 		this.color = color;
 		this.damage = 0;
+		this.declaredAttacker = false;
 
 		this.setScale(0.7);
 		scene.add.existing(this);
@@ -604,17 +613,23 @@ let Battlefield = new Phaser.Class({
 		player.playCard(cardIndex);
 
 		let card = new CardUI(this.scene, this.x * (this.cards.length + 1), this.y, cardObject.id, null, cardObject.cmc, cardObject.power, cardObject.toughness, cardObject.colors[0]);
-		this.cards.push(cardObject);
+		this.cards.push(card);
 	}, //end addCard
 
-	declareAttacker: function (card, scene) {
+	declareAttacker: function (attackingCard, scene) {
 		let matchScene = scene.scene.get("MatchScene");
-
-		scene.playerBattlefield.addCard(scene.hand.cards[card], card, matchScene.player);
-		matchScene.loadHand(matchScene.player.hand);
-		scene.currentMenu.selector.destroy();
-		scene.currentMenu = scene.optionsMenu;
-		scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
+		console.log(scene);
+		let enemy = matchScene.enemy;
+		if (matchScene.enemy.battlefield.length > 0) {
+			//enemy declare blockers
+		} else {
+			//no blockers
+			enemy.life = enemy.life - attackingCard.power;
+			attackingCard.declaredAttacker = true;
+			scene.enemyLifeCounter.destroy();
+			scene.enemyLifeCounter = new LifeCounter(16, 136, scene, enemy.life);
+			scene.infoContainer.add(scene.enemyLifeCounter);
+		}
 	}, //end declareAttacker
 
 	moveSelectionLeft: function (menu) {
