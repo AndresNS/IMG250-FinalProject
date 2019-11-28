@@ -52,18 +52,16 @@ let MatchScene = new Phaser.Class({
 		playerDeck.shuffleDeck();
 		enemyDeck.shuffleDeck();
 
-		let player = new Player("player", gameSettings.STARTING_LIFE_TOTAL, playerDeck);
-		let enemy = new Player("enemy", gameSettings.STARTING_LIFE_TOTAL, enemyDeck);
+		this.player = new Player("player", gameSettings.STARTING_LIFE_TOTAL, playerDeck);
+		this.enemy = new Player("enemy", gameSettings.STARTING_LIFE_TOTAL, enemyDeck);
 
 		//draw hand
 		for (let i = 0; i < 3; i++) {
-			player.hand.push(player.deck.deckCards.shift());
-			enemy.hand.push(enemy.deck.deckCards.shift());
+			this.player.hand.push(this.player.deck.deckCards.shift());
+			this.enemy.hand.push(this.enemy.deck.deckCards.shift());
 		}
 
-		this.loadHand(player.hand);
-
-		this.nextTurn(player);
+		this.nextTurn(this.player);
 
 
 		// if (this.chooseFirstPlayer()) {
@@ -78,11 +76,18 @@ let MatchScene = new Phaser.Class({
 
 	loadHand: function (cards) {
 		let ui = this.scene.get("UIScene");
+		if (typeof ui.hand != "undefined") {
+			for(let i=0; i<ui.hand.card.length; i++){
+				ui.hand.card[i].destroy();
+			}
+		}
 		ui.cards = [];
 
 		ui.handContainer = ui.add.container();
 		ui.hand = new HandUI(0, 0, ui, cards);
 		ui.handContainer.add(ui.hand);
+
+
 	},
 
 	nextTurn: function (player) {
@@ -269,8 +274,8 @@ let Menu = new Phaser.Class({
 					//cast
 					let uiScene = menu.scene;
 
-					uiScene.hand.createSelector(uiScene,0,0);
-					
+					uiScene.hand.createSelector(uiScene, 0, 0);
+
 					uiScene.currentMenu = uiScene.hand;
 				}
 				break;
@@ -366,9 +371,6 @@ let UIScene = new Phaser.Class({
 		// listen for keyboard events
 		this.input.keyboard.on("keydown", this.onKeyInput, this);
 
-
-
-
 	}, //end create
 
 	onKeyInput: function (event) {
@@ -400,7 +402,8 @@ let UIScene = new Phaser.Class({
 					this.currentMenu.moveSelectionLeft(this.currentMenu);
 					break;
 				case controls.INTERACT:
-					this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
+					// this.currentMenu.playCard(this.currentMenu.cards[this.currentMenu.selectorPosition]);
+					this.currentMenu.playCard(this.currentMenu.selectorPosition, this);
 					break;
 			}
 		}
@@ -579,6 +582,24 @@ let CardUI = new Phaser.Class({
 	} //end resetDamage
 }); //end CardUI
 
+let Battlefield = new Phaser.Class({
+	Extends: Phaser.GameObjects.Container,
+
+	initialize: function Battlefield(x, y, scene) {
+		Phaser.GameObjects.Container.call(this, scene, x, y);
+		this.x = x;
+		this.y = y;
+		this.cards = [];
+	},
+
+	addCard: function (card, cardIndex, player) {
+		player.playCard(cardIndex);
+		this.cards.push(card);
+		this.scene.add.sprite(110, 110, "96865440-01ad-40f2-90d7-9ecd0b4efecc");
+	}
+});
+
+
 let HandUI = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
 
@@ -602,8 +623,12 @@ let HandUI = new Phaser.Class({
 		hand.push(card);
 	},
 
-	playCard: function (cardIndex) {
-
+	playCard: function (card, scene) {
+		let matchScene = scene.scene.get("MatchScene");
+		scene.playerBattlefield = new Battlefield(110, 110, scene);
+		scene.playerBattlefield.addCard(scene.hand.cards[card], card, matchScene.player);
+		scene.playerBattlefieldContainer.add(scene.playerBattlefield);
+		matchScene.loadHand(matchScene.player.hand);
 	},
 
 	moveSelectionLeft: function (menu) {
@@ -613,9 +638,9 @@ let HandUI = new Phaser.Class({
 			this.createSelector(menu.scene, 115 * (this.selectorPosition), 0);
 		}
 	},
-	
+
 	moveSelectionRight: function (menu) {
-		if (this.selectorPosition < this.cards.length-1) {
+		if (this.selectorPosition < this.cards.length - 1) {
 			this.selectorPosition++;
 			this.selector.destroy();
 			this.createSelector(menu.scene, 115 * (this.selectorPosition), 0);
@@ -636,7 +661,7 @@ let HandUI = new Phaser.Class({
 let CardSelector = new Phaser.Class({
 	Extends: Phaser.GameObjects.Polygon,
 
-	initialize: function CardSelector(scene, x, y, points){
+	initialize: function CardSelector(scene, x, y, points) {
 		Phaser.GameObjects.Polygon.call(this, scene, x, y, points);
 
 		this.setStrokeStyle(5, 0xffffff, 1);
@@ -650,7 +675,12 @@ function Player(type, life, deck) {
 	this.type = type;
 	this.life = life;
 	this.deck = deck;
+	this.battlefield = [];
 	this.hand = [];
+	this.playCard = function (cardIndex) {
+		this.battlefield.push(this.hand[cardIndex]);
+		this.hand.splice(cardIndex, 1);
+	};
 	this.drawCard = function () {
 		this.hand.push(this.deck.deckCards.shift());
 	};
