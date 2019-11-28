@@ -334,6 +334,12 @@ let UIScene = new Phaser.Class({
 		this.playerBattlefieldContainer = this.add.container();
 		this.enemyBattlefieldContainer = this.add.container();
 
+		//Battlefields
+		// this.enemyBattlefield = new Battlefield(110, 110, this);
+		// this.enemyBattlefieldContainer.add(this.playerBattlefield);
+		this.playerBattlefield = new Battlefield(150, 300, this);
+		this.playerBattlefieldContainer.add(this.playerBattlefield);
+
 
 		//Options Menu
 		let options = ["Cast", "Attack", "End Turn", "Concede"];
@@ -565,8 +571,6 @@ let CardUI = new Phaser.Class({
 
 		this.setScale(0.7);
 		scene.add.existing(this);
-		// let card = this.scene.add.sprite(this.x, this.y, id);
-		// card.setScale(0.7);
 	}, //end initialize
 
 	attack: function () {
@@ -596,10 +600,12 @@ let Battlefield = new Phaser.Class({
 		this.cards = [];
 	},
 
-	addCard: function (card, cardIndex, player) {
+	addCard: function (cardObject, cardIndex, player) {
 		player.playCard(cardIndex);
-		this.cards.push(card);
-		this.scene.add.sprite(110, 110, "96865440-01ad-40f2-90d7-9ecd0b4efecc");
+		
+		let card = new CardUI(this.scene, this.x * (this.cards.length + 1), this.y, cardObject.id, null, 1, 1, 1, "W");
+		this.cards.push(cardObject);
+		console.log(player);
 	}
 });
 
@@ -627,9 +633,8 @@ let HandUI = new Phaser.Class({
 
 	playCard: function (card, scene) {
 		let matchScene = scene.scene.get("MatchScene");
-		scene.playerBattlefield = new Battlefield(110, 110, scene);
+		
 		scene.playerBattlefield.addCard(scene.hand.cards[card], card, matchScene.player);
-		scene.playerBattlefieldContainer.add(scene.playerBattlefield);
 		matchScene.loadHand(matchScene.player.hand);
 	}, //end playCard
 
