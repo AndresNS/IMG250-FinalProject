@@ -199,7 +199,7 @@ let DialogBoxScene = new Phaser.Class({
 			];
 
 			let world = this;
-			
+
 			setTimeout(function () {
 				world.scene.launch("MatchScene", data);
 			}, 3000);
@@ -282,6 +282,41 @@ let DialogBoxScene = new Phaser.Class({
 		return enemigoDeck;
 	} //end loadEnemyDeck
 }); //end DialogBoxScene
+
+// let TransitionScene = new Phaser.Class({
+// 	Extends: Phaser.Scene,
+
+// 	initialize: function TransitionScene() {
+// 		Phaser.Scene.call(this, {
+// 			key: "TransitionScene"
+// 		});
+// 	}, //end initialize
+
+// 	preload: function () {}, //end preload
+
+// 	create: function () {
+// 		this.scene.add.text(100, 100, "Loading Decks");
+// 	}, //end create
+
+// 	update: function () {
+// 		if(){
+
+// 		}
+// 		this.scene.stop("TransitionScene");
+// 		let data = [
+// 			this.loadPlayerDeck(),
+// 			this.loadEnemyDeck(),
+// 			this.npc
+// 		];
+
+// 		let world = this;
+
+// 		setTimeout(function () {
+// 			world.scene.launch("MatchScene", data);
+// 		}, 3000);
+
+// 	} //end update
+// }); //end WorldScene
 
 function Deck(color) {
 	this.color = color;

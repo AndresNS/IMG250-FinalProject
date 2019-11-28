@@ -28,13 +28,13 @@ const npcMessages = Object.freeze({
 });
 
 const controls = Object.freeze({
-	INTERACT: "A",
-	CANCEL: "S",
-	OPEN_MENU: "ENTER"
+	INTERACT: "Space",
+	CANCEL: "s",
+	OPEN_MENU: "Enter"
 });
 
 const gameSettings = Object.freeze({
-	WALK_SPEED: 500,
+	WALK_SPEED: 1800,
 	STARTING_LIFE_TOTAL: 20
 });
 

@@ -1,4 +1,4 @@
-/*global Phaser, BootScene, WorldScene, DialogBoxScene, MatchScene, UIScene*/
+/*global Phaser, BootScene, WorldScene, DialogBoxScene, TransitionScene, MatchScene, UIScene*/
 /*eslint no-undef: "error"*/
 
 let config = {
@@ -20,6 +20,7 @@ let config = {
 		BootScene,
 		WorldScene,
 		DialogBoxScene,
+		// TransitionScene,
 		MatchScene,
 		UIScene
 	]

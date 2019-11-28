@@ -1,4 +1,4 @@
-/*global Phaser, gameSettings, enemyDeck*/
+/*global Phaser, gameSettings, controls*/
 /*eslint no-undef: "error"*/
 
 let MatchScene = new Phaser.Class({
@@ -65,7 +65,7 @@ let MatchScene = new Phaser.Class({
 
 		this.nextTurn(player);
 
-		// console.log(player);
+
 		// if (this.chooseFirstPlayer()) {
 		// 	//player starts
 		// 	this.nextTurn(player);
@@ -82,7 +82,6 @@ let MatchScene = new Phaser.Class({
 
 		this.handContainer = this.add.container();
 		this.hand = new HandUI(0, 0, ui, cards);
-
 		this.handContainer.add(this.hand);
 	},
 
@@ -92,6 +91,7 @@ let MatchScene = new Phaser.Class({
 
 		//draw card
 		player.drawCard();
+		this.loadHand(player.hand);
 
 		//next phase (main)
 		//play cards
@@ -173,6 +173,7 @@ let MenuItem = new Phaser.Class({
 			strokeThickness: 0
 		});
 	} //end deselect
+
 }); //end MenuItem
 
 let Menu = new Phaser.Class({
@@ -260,19 +261,58 @@ let Menu = new Phaser.Class({
 				this.menuItemIndex = 3;
 			}
 		}
-	} //end moveSelectionRight
+	}, //end moveSelectionRight
+	selectOption: function (option, menu) {
+		switch (option) {
+			case 0:
+				if (menu.type == "actions") {
+					//cast
+					let menuScene = menu.scene;
+					menu.destroy();
+					let options = ["hola", "dasdf", "asdf", "324234"]
+					menuScene.optionsMenu = new OptionsMenu(30, 450, menuScene, "cast", options);
+					menuScene.optionsMenu.menuItems[0].select();
+					menuScene.optionsMenuContainer.add(menuScene.optionsMenu);
+					menuScene.currentMenu = menuScene.optionsMenu;
+				}
+				break;
+			case 1:
+				if (menu.type == "actions") {
+					//attack
+					console.log("attack");
+				}
+				break;
+			case 2:
+				if (menu.type == "actions") {
+					//end turn
+					console.log("end turn");
+				}
+				break;
+			case 3:
+				if (menu.type == "actions") {
+					//concede
+					console.log("concede");
+				}
+				break;
+		}
+	}
 }); // end Menu
 
 let OptionsMenu = new Phaser.Class({
 	Extends: Menu,
 
-	initialize: function (x, y, scene) {
+	initialize: function (x, y, scene, type, options) {
 		Menu.call(this, x, y, scene);
-		this.addMenuItem("Cast");
-		this.addMenuItem("Attack");
-		this.addMenuItem("End Turn");
-		this.addMenuItem("Concede");
-	} //end initialize
+		this.type = type;
+		this.options = options;
+		this.addOptions(this.options, this);
+	}, //end initialize
+
+	addOptions: function (options, scene) {
+		for (let i = 0; i < options.length; i++) {
+			scene.addMenuItem(options[i]);
+		}
+	} //end addOptions
 }); //end OptionsMenu
 
 let UIScene = new Phaser.Class({
@@ -293,7 +333,8 @@ let UIScene = new Phaser.Class({
 
 
 		//Options Menu
-		this.optionsMenu = new OptionsMenu(30, 450, this);
+		let options = ["Cast", "Attack", "End Turn", "Concede"];
+		this.optionsMenu = new OptionsMenu(30, 450, this, "actions", options);
 		this.optionsMenu.menuItems[0].select();
 		this.optionsMenuContainer.add(this.optionsMenu);
 
@@ -344,6 +385,9 @@ let UIScene = new Phaser.Class({
 				break;
 			case "ArrowLeft":
 				this.currentMenu.moveSelectionLeft();
+				break;
+			case controls.INTERACT:
+				this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
 				break;
 		}
 	} //end onKeyInput
@@ -532,15 +576,14 @@ let HandUI = new Phaser.Class({
 		this.card = [];
 
 		for (let i = 0; i < this.cards.length; i++) {
-			// let card = this.scene.add.sprite(i * 55 + 195, 250, this.cards[i].id);
-			// card.setScale(0.36);
-			let card = this.scene.add.sprite(i * 110 + 390, 500, this.cards[i].id);
+			let card = this.scene.add.sprite(i * 115 + 390, 500, this.cards[i].id);
 			card.setScale(0.7);
 		}
+
 	},
 
-	addCard: function () {
-
+	addCard: function (card, hand) {
+		hand.push(card);
 	},
 
 	playCard: function (cardIndex) {
