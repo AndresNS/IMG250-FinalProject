@@ -78,11 +78,11 @@ let MatchScene = new Phaser.Class({
 
 	loadHand: function (cards) {
 		let ui = this.scene.get("UIScene");
-		this.cards = [];
+		ui.cards = [];
 
-		this.handContainer = this.add.container();
-		this.hand = new HandUI(0, 0, ui, cards);
-		this.handContainer.add(this.hand);
+		ui.handContainer = ui.add.container();
+		ui.hand = new HandUI(0, 0, ui, cards);
+		ui.handContainer.add(ui.hand);
 	},
 
 	nextTurn: function (player) {
@@ -267,13 +267,11 @@ let Menu = new Phaser.Class({
 			case 0:
 				if (menu.type == "actions") {
 					//cast
-					let menuScene = menu.scene;
-					menu.destroy();
-					let options = ["hola", "dasdf", "asdf", "324234"]
-					menuScene.optionsMenu = new OptionsMenu(30, 450, menuScene, "cast", options);
-					menuScene.optionsMenu.menuItems[0].select();
-					menuScene.optionsMenuContainer.add(menuScene.optionsMenu);
-					menuScene.currentMenu = menuScene.optionsMenu;
+					let uiScene = menu.scene;
+
+					uiScene.hand.createSelector(uiScene,0,0);
+					
+					uiScene.currentMenu = uiScene.hand;
 				}
 				break;
 			case 1:
@@ -330,6 +328,8 @@ let UIScene = new Phaser.Class({
 		this.optionsMenuContainer = this.add.container();
 		this.phasesContainer = this.add.container();
 		this.infoContainer = this.add.container();
+		this.playerBattlefieldContainer = this.add.container();
+		this.enemyBattlefieldContainer = this.add.container();
 
 
 		//Options Menu
@@ -353,7 +353,6 @@ let UIScene = new Phaser.Class({
 		this.playerLifeCounter = new LifeCounter(16, 208, this);
 		this.infoContainer.add(this.playerLifeCounter);
 
-
 		//Mana
 		this.enemyManaCounter = new Mana(42, 40, this, npc);
 		this.infoContainer.add(this.enemyManaCounter);
@@ -373,22 +372,37 @@ let UIScene = new Phaser.Class({
 	}, //end create
 
 	onKeyInput: function (event) {
-		switch (event.code) {
-			case "ArrowUp":
-				this.currentMenu.moveSelectionUp();
-				break;
-			case "ArrowDown":
-				this.currentMenu.moveSelectionDown();
-				break;
-			case "ArrowRight":
-				this.currentMenu.moveSelectionRight();
-				break;
-			case "ArrowLeft":
-				this.currentMenu.moveSelectionLeft();
-				break;
-			case controls.INTERACT:
-				this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
-				break;
+		if (this.currentMenu.type == "actions") {
+			switch (event.code) {
+				case "ArrowUp":
+					this.currentMenu.moveSelectionUp();
+					break;
+				case "ArrowDown":
+					this.currentMenu.moveSelectionDown();
+					break;
+				case "ArrowRight":
+					this.currentMenu.moveSelectionRight();
+					break;
+				case "ArrowLeft":
+					this.currentMenu.moveSelectionLeft();
+					break;
+				case controls.INTERACT:
+					this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
+					break;
+			}
+		} else {
+			switch (event.code) {
+				case "ArrowRight":
+
+					this.currentMenu.moveSelectionRight(this.currentMenu);
+					break;
+				case "ArrowLeft":
+					this.currentMenu.moveSelectionLeft(this.currentMenu);
+					break;
+				case controls.INTERACT:
+					this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
+					break;
+			}
 		}
 	} //end onKeyInput
 
@@ -574,6 +588,8 @@ let HandUI = new Phaser.Class({
 		this.x = x;
 		this.y = y;
 		this.card = [];
+		this.selectorPosition = 0;
+		this.selector;
 
 		for (let i = 0; i < this.cards.length; i++) {
 			let card = this.scene.add.sprite(i * 115 + 390, 500, this.cards[i].id);
@@ -590,14 +606,45 @@ let HandUI = new Phaser.Class({
 
 	},
 
-	moveSelectionLeft: function () {
-
+	moveSelectionLeft: function (menu) {
+		if (this.selectorPosition > 0) {
+			this.selectorPosition--;
+			this.selector.destroy();
+			this.createSelector(menu.scene, 115 * (this.selectorPosition), 0);
+		}
+	},
+	
+	moveSelectionRight: function (menu) {
+		if (this.selectorPosition < this.cards.length-1) {
+			this.selectorPosition++;
+			this.selector.destroy();
+			this.createSelector(menu.scene, 115 * (this.selectorPosition), 0);
+		}
 	},
 
-	moveSelectionRight: function () {
+	createSelector: function (scene, x, y) {
 
-	}
+		this.selector = new CardSelector(scene, 390 + x, 500 + y, [
+			0, 0,
+			0, 187,
+			114, 187,
+			114, 0
+		]);
+	} //end createSelector
 }); //end HandUI
+
+let CardSelector = new Phaser.Class({
+	Extends: Phaser.GameObjects.Polygon,
+
+	initialize: function CardSelector(scene, x, y, points){
+		Phaser.GameObjects.Polygon.call(this, scene, x, y, points);
+
+		this.setStrokeStyle(5, 0xffffff, 1);
+		this.setFillStyle(0xffffff, 0);
+
+		scene.add.existing(this);
+	} //end initialize
+}); //end CardSelector
 
 function Player(type, life, deck) {
 	this.type = type;
