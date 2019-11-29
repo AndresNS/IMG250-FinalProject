@@ -328,8 +328,9 @@ let UIScene = new Phaser.Class({
 		this.enemyBattlefieldContainer = this.add.container();
 
 		//Battlefields
-		// this.enemyBattlefield = new Battlefield(110, 110, this);
-		// this.enemyBattlefieldContainer.add(this.playerBattlefield);
+		this.enemyBattlefield = new Battlefield(110, 110, this);
+		this.enemyBattlefield.name = "battlefield";
+		this.enemyBattlefieldContainer.add(this.enemyBattlefield);
 		this.playerBattlefield = new Battlefield(150, 300, this);
 		this.playerBattlefield.name = "battlefield";
 		this.playerBattlefieldContainer.add(this.playerBattlefield);
@@ -387,8 +388,12 @@ let UIScene = new Phaser.Class({
 					this.currentMenu.moveSelectionLeft();
 					break;
 				case controls.INTERACT:
-					this.currentMenu.menuItems[this.currentMenu.menuItemIndex].deselect();
-					this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
+					if(this.playerBattlefield.cards.length==0 && this.currentMenu.menuItemIndex == 1){
+						console.log("no creatures in battlefield.");
+					}else{
+						this.currentMenu.menuItems[this.currentMenu.menuItemIndex].deselect();
+						this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
+					}
 					break;
 			}
 		} else {
@@ -509,16 +514,6 @@ let LifeCounter = new Phaser.Class({
 		this.add(this.lifeText);
 	} //end initialize
 
-	// createCounter: function(life, scene){
-	// 	this.lifeText = new LifeText(0, 0, life, scene);
-	// 	this.add(this.lifeText);
-	// }, //end createCounter
-
-	// loseLife: function (amount) {
-	// 	this.destroy();
-	// 	this.createCounter(this.lifeTotal - amount, this.scene);
-	// }, //end moveSelectionUp
-
 }); //end LifeCounter
 
 let ManaText = new Phaser.Class({
@@ -618,18 +613,39 @@ let Battlefield = new Phaser.Class({
 
 	declareAttacker: function (attackingCard, scene) {
 		let matchScene = scene.scene.get("MatchScene");
-		console.log(scene);
 		let enemy = matchScene.enemy;
 		if (matchScene.enemy.battlefield.length > 0) {
 			//enemy declare blockers
 		} else {
 			//no blockers
-			enemy.life = enemy.life - attackingCard.power;
-			attackingCard.declaredAttacker = true;
-			scene.enemyLifeCounter.destroy();
-			scene.enemyLifeCounter = new LifeCounter(16, 136, scene, enemy.life);
-			scene.infoContainer.add(scene.enemyLifeCounter);
+			if (!attackingCard.declaredAttacker) {
+				enemy.life = enemy.life - attackingCard.power;
+				attackingCard.declaredAttacker = true;
+				scene.enemyLifeCounter.destroy();
+				scene.enemyLifeCounter = new LifeCounter(16, 136, scene, enemy.life);
+				scene.infoContainer.add(scene.enemyLifeCounter);
+				matchScene.cameras.main.shake(100, 0.01);
+			} else {
+				let message = scene.add.text(110, 180, "This creature already attacked this turn.", {
+					color: "#eeeeee",
+					align: "left",
+					fontSize: 23,
+					stroke: "#000000",
+					strokeThickness: 5
+				});
+				scene.scene.pause();
+
+				setTimeout(function(){
+					message.destroy();
+					scene.scene.resume();
+				}, 2000);
+
+			}
 		}
+
+		scene.currentMenu.selector.destroy();
+		scene.currentMenu = scene.optionsMenu;
+		scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
 	}, //end declareAttacker
 
 	moveSelectionLeft: function (menu) {
