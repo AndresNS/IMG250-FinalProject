@@ -104,28 +104,68 @@ let MatchScene = new Phaser.Class({
 		let ui = this.scene.get("UIScene");
 		let matchScene = this;
 		//add mana
-		player.totalMana++;
-		player.currentMana = player.totalMana;
-		ui.updateMana(player);
+		if(player.totalMana<8){
+			player.totalMana++;
+			player.currentMana = player.totalMana;
+			ui.updateMana(player);
+		}
 
 
-		if(player.type == "enemy"){
-			console.log("enemy turn starts");
+		if (player.type == "enemy") {
+			let message = ui.add.text(322, 180, "Enemy Turn", {
+				color: "#eeeeee",
+				align: "left",
+				fontSize: 23,
+				stroke: "#000000",
+				strokeThickness: 5
+			});
+
+			player.drawCard();
+
+			setTimeout(function () {
+				message.destroy();
+
+				//play cards
+				for (let i = 0; i < player.hand.length; i++) {
+					if (player.hand[i].cmc <= player.currentMana && player.battlefield.length<4) {
+						let cmc = player.hand[i].cmc;
+						ui.enemyBattlefield.addCard(player.hand[i], i, player);
+						player.currentMana = player.currentMana - cmc;
+						ui.updateMana(player);
+					}
+				}
+
+				//attack
+			}, 1000);
+
+
 			setTimeout(function () {
 				console.log("enemy turn ends");
 				matchScene.nextTurn(matchScene.player);
 			}, 4000);
-		}else{
+		} else {
+
+			let message = ui.add.text(322, 180, "Your Turn", {
+				color: "#eeeeee",
+				align: "left",
+				fontSize: 23,
+				stroke: "#000000",
+				strokeThickness: 5
+			});
+
+			setTimeout(function () {
+				message.destroy();
+			}, 1000);
+
 			ui.currentMenu = ui.optionsMenu;
+			ui.currentMenu.menuItemIndex = 0;
 			ui.currentMenu.menuItems[ui.currentMenu.menuItemIndex].select();
-			
 			console.log("player turn starts");
+			
+			console.log(player);
+			player.drawCard();
+			matchScene.loadHand(player.hand);
 		}
-
-	}, //end nextTurn
-
-	nextPhase: function (currentPhase) {
-
 
 	}, //end nextTurn
 
@@ -346,7 +386,7 @@ let UIScene = new Phaser.Class({
 		this.enemyBattlefieldContainer = this.add.container();
 
 		//Battlefields
-		this.enemyBattlefield = new Battlefield(110, 110, this);
+		this.enemyBattlefield = new Battlefield(150, 90, this);
 		this.enemyBattlefield.name = "battlefield";
 		this.enemyBattlefieldContainer.add(this.enemyBattlefield);
 		this.playerBattlefield = new Battlefield(150, 300, this);
@@ -823,6 +863,8 @@ function Player(type, life, deck) {
 		this.hand.splice(cardIndex, 1);
 	};
 	this.drawCard = function () {
-		this.hand.push(this.deck.deckCards.shift());
+		if(this.hand.length<4){
+			this.hand.push(this.deck.deckCards.shift());
+		}
 	};
 }
