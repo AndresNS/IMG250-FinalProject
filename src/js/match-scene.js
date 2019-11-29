@@ -11,12 +11,21 @@ let MatchScene = new Phaser.Class({
 	}, //end initialize
 
 	init: function (data) {
-		this.cardsImages = {};
+		this.playerCardsImages = {};
+		this.enemyCardsImages = {};
 
 		for (let cardId in data[0].deckList) {
 			for (let i = 0; i < data[0].deckCards.length; i++) {
 				if (data[0].deckCards[i].id == cardId) {
-					this.cardsImages[cardId] = data[0].deckCards[i].image_uris.small;
+					this.playerCardsImages[cardId] = data[0].deckCards[i].image_uris.small;
+				}
+			}
+		}
+
+		for (let cardId in data[1].deckList) {
+			for (let i = 0; i < data[1].deckCards.length; i++) {
+				if (data[1].deckCards[i].id == cardId) {
+					this.enemyCardsImages[cardId] = data[1].deckCards[i].image_uris.small;
 				}
 			}
 		}
@@ -30,8 +39,11 @@ let MatchScene = new Phaser.Class({
 		this.load.image("R", "assets/redMana.png");
 		this.load.image("G", "assets/greenMana.png");
 		let scene = this;
-		for (let i = 0; i < Object.keys(this.cardsImages).length; i++) {
-			scene.load.image(Object.keys(this.cardsImages)[i], scene.cardsImages[Object.keys(this.cardsImages)[i]]);
+		for (let i = 0; i < Object.keys(this.playerCardsImages).length; i++) {
+			scene.load.image(Object.keys(this.playerCardsImages)[i], scene.playerCardsImages[Object.keys(this.playerCardsImages)[i]]);
+		}
+		for (let i = 0; i < Object.keys(this.enemyCardsImages).length; i++) {
+			scene.load.image(Object.keys(this.enemyCardsImages)[i], scene.enemyCardsImages[Object.keys(this.enemyCardsImages)[i]]);
 		}
 	}, //end preload
 
@@ -180,7 +192,6 @@ let MatchScene = new Phaser.Class({
 			ui.currentMenu.menuItems[ui.currentMenu.menuItemIndex].select();
 			console.log("player turn starts");
 
-			console.log(player);
 			player.drawCard();
 			matchScene.loadHand(player.hand);
 		}
