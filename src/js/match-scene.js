@@ -24,11 +24,11 @@ let MatchScene = new Phaser.Class({
 
 	preload: function () {
 		this.load.image("matchBg", "assets/match-bg.png");
-		this.load.image("white", "assets/whiteMana.png");
-		this.load.image("blue", "assets/blueMana.png");
-		this.load.image("black", "assets/blackMana.png");
-		this.load.image("red", "assets/redMana.png");
-		this.load.image("green", "assets/greenMana.png");
+		this.load.image("W", "assets/whiteMana.png");
+		this.load.image("U", "assets/blueMana.png");
+		this.load.image("B", "assets/blackMana.png");
+		this.load.image("R", "assets/redMana.png");
+		this.load.image("G", "assets/greenMana.png");
 		let scene = this;
 		for (let i = 0; i < Object.keys(this.cardsImages).length; i++) {
 			scene.load.image(Object.keys(this.cardsImages)[i], scene.cardsImages[Object.keys(this.cardsImages)[i]]);
@@ -89,8 +89,11 @@ let MatchScene = new Phaser.Class({
 	},
 
 	nextTurn: function (player) {
+		let ui = this.scene.get("UIScene");
 		//add mana
-		player.mana++;
+		player.totalMana++;
+		player.currentMana = player.totalMana;
+		ui.updateMana(player);
 
 		//draw card
 		player.drawCard();
@@ -358,11 +361,11 @@ let UIScene = new Phaser.Class({
 		this.infoContainer.add(this.playerLifeCounter);
 
 		//Mana
-		this.enemyManaCounter = new Mana(42, 40, this, npc);
-		this.infoContainer.add(this.enemyManaCounter);
+		// this.enemyManaCounter = new Mana(42, 40, this, npc);
+		// this.infoContainer.add(this.enemyManaCounter);
 
-		this.playerManaCounter = new Mana(42, 306, this, "green");
-		this.infoContainer.add(this.playerManaCounter);
+		// this.playerManaCounter = new Mana(42, 306, this, "green");
+		// this.infoContainer.add(this.playerManaCounter);
 
 		//Initial state
 		this.currentMenu = this.optionsMenu;
@@ -371,6 +374,23 @@ let UIScene = new Phaser.Class({
 		this.input.keyboard.on("keydown", this.onKeyInput, this);
 
 	}, //end create
+
+	updateMana: function(player){
+		this.infoContainer = this.add.container();
+		if(player.type == "player"){
+			if(typeof this.playerManaCounter != "undefined"){
+				this.playerManaCounter.destroy();
+			}
+			this.playerManaCounter = new Mana(42, 306, this, player.deck.color, player.totalMana, player.currentMana);
+			this.infoContainer.add(this.playerManaCounter);
+		}else{
+			if(typeof this.enemyManaCounter != "undefined"){
+				this.enemyManaCounter.destroy();
+			}
+			this.enemyManaCounter = new Mana(42, 40, this, player.deck.color, player.totalMana, player.currentMana);
+			this.infoContainer.add(this.enemyManaCounter);
+		}
+	},
 
 	onKeyInput: function (event) {
 		if (this.currentMenu.type == "actions") {
@@ -533,11 +553,11 @@ let ManaText = new Phaser.Class({
 let Mana = new Phaser.Class({
 	Extends: Phaser.GameObjects.Container,
 
-	initialize: function Mana(x, y, scene, color) {
+	initialize: function Mana(x, y, scene, color, totalMana, currentMana) {
 		Phaser.GameObjects.Container.call(this, scene, x, y);
 
-		this.totalMana = 0;
-		this.currentMana = 0;
+		this.totalMana = totalMana;
+		this.currentMana = currentMana;
 		this.x = x;
 		this.y = y;
 
@@ -550,6 +570,9 @@ let Mana = new Phaser.Class({
 
 	addMana: function () {
 		this.totalMana++;
+		this.manaText.destroy();
+		this.manaText = new ManaText(-29, 30, `${this.currentMana}/${this.totalMana}`, this.scene);
+		this.add(this.manaText);
 	}, //end addMana
 
 	spendMana: function (quantity) {
@@ -636,8 +659,8 @@ let Battlefield = new Phaser.Class({
 				scene.scene.pause();
 
 				setTimeout(function(){
-					message.destroy();
 					scene.scene.resume();
+					message.destroy();
 				}, 2000);
 
 			}
@@ -697,14 +720,36 @@ let HandUI = new Phaser.Class({
 		hand.push(card);
 	}, //end addCard
 
-	playCard: function (card, scene) {
+	playCard: function (cardIndex, scene) {
 		let matchScene = scene.scene.get("MatchScene");
+		let currentMana = matchScene.player.currentMana;
+		let cmc = scene.hand.cards[cardIndex].cmc;
+		if(currentMana<cmc){
+			let message = scene.add.text(210, 180, "You don't have enough mana.", {
+				color: "#eeeeee",
+				align: "left",
+				fontSize: 23,
+				stroke: "#000000",
+				strokeThickness: 5
+			});
+			scene.scene.pause();
 
-		scene.playerBattlefield.addCard(scene.hand.cards[card], card, matchScene.player);
-		matchScene.loadHand(matchScene.player.hand);
-		scene.currentMenu.selector.destroy();
-		scene.currentMenu = scene.optionsMenu;
-		scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
+			setTimeout(function(){
+				scene.scene.resume();
+				message.destroy();
+			}, 2000);
+		}else{
+			scene.playerBattlefield.addCard(scene.hand.cards[cardIndex], cardIndex, matchScene.player);
+			matchScene.loadHand(matchScene.player.hand);
+			scene.currentMenu.selector.destroy();
+			scene.currentMenu = scene.optionsMenu;
+			scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
+			currentMana = currentMana - cmc;
+			matchScene.player.currentMana = currentMana;
+			this.scene.updateMana(matchScene.player);
+		}
+
+		
 	}, //end playCard
 
 	moveSelectionLeft: function (menu) {
@@ -753,6 +798,8 @@ function Player(type, life, deck) {
 	this.deck = deck;
 	this.battlefield = [];
 	this.hand = [];
+	this.currentMana = 0;
+	this.totalMana = 0;
 	this.playCard = function (cardIndex) {
 		this.battlefield.push(this.hand[cardIndex]);
 		this.hand.splice(cardIndex, 1);
