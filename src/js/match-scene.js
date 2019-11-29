@@ -104,7 +104,7 @@ let MatchScene = new Phaser.Class({
 		let ui = this.scene.get("UIScene");
 		let matchScene = this;
 		//add mana
-		if(player.totalMana<8){
+		if (player.totalMana < 8) {
 			player.totalMana++;
 			player.currentMana = player.totalMana;
 			ui.updateMana(player);
@@ -127,7 +127,7 @@ let MatchScene = new Phaser.Class({
 
 				//play cards
 				for (let i = 0; i < player.hand.length; i++) {
-					if (player.hand[i].cmc <= player.currentMana && player.battlefield.length<4) {
+					if (player.hand[i].cmc <= player.currentMana && player.battlefield.length < 4) {
 						let cmc = player.hand[i].cmc;
 						ui.enemyBattlefield.addCard(player.hand[i], i, player);
 						player.currentMana = player.currentMana - cmc;
@@ -136,6 +136,24 @@ let MatchScene = new Phaser.Class({
 				}
 
 				//attack
+				setTimeout(function () {
+					if (matchScene.player.battlefield.length == 0) {
+						//no blockers
+						for(let i=0;i<player.battlefield.length; i++){
+							if (!player.battlefield[i].declaredAttacker) {
+								setTimeout(function(){
+									matchScene.player.life = matchScene.player.life - player.battlefield[i].power;
+									player.battlefield[i].declaredAttacker = true;
+									ui.playerLifeCounter.destroy();
+									ui.playerLifeCounter = new LifeCounter(16, 208, ui, matchScene.player.life);
+									ui.infoContainer.add(ui.playerLifeCounter);
+									matchScene.cameras.main.shake(100, 0.01);
+									console.log(player.battlefield[i].name + " is attacking you for " + player.battlefield[i].power);
+								}, 1000);
+							}
+						}
+					}
+				}, 1000);
 			}, 1000);
 
 
@@ -161,7 +179,7 @@ let MatchScene = new Phaser.Class({
 			ui.currentMenu.menuItemIndex = 0;
 			ui.currentMenu.menuItems[ui.currentMenu.menuItemIndex].select();
 			console.log("player turn starts");
-			
+
 			console.log(player);
 			player.drawCard();
 			matchScene.loadHand(player.hand);
@@ -863,7 +881,7 @@ function Player(type, life, deck) {
 		this.hand.splice(cardIndex, 1);
 	};
 	this.drawCard = function () {
-		if(this.hand.length<4){
+		if (this.hand.length < 4) {
 			this.hand.push(this.deck.deckCards.shift());
 		}
 	};
