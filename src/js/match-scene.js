@@ -60,6 +60,9 @@ let MatchScene = new Phaser.Class({
 			this.player.hand.push(this.player.deck.deckCards.shift());
 			this.enemy.hand.push(this.enemy.deck.deckCards.shift());
 		}
+		let ui = this.scene.get("UIScene");
+		ui.updateMana(this.player);
+		ui.updateMana(this.enemy);
 
 		this.nextTurn(this.player);
 
@@ -732,12 +735,12 @@ let HandUI = new Phaser.Class({
 				stroke: "#000000",
 				strokeThickness: 5
 			});
-			scene.scene.pause();
+			// scene.scene.pause();
 
 			setTimeout(function(){
-				scene.scene.resume();
+				// scene.scene.resume();
 				message.destroy();
-			}, 2000);
+			}, 1000);
 		}else{
 			scene.playerBattlefield.addCard(scene.hand.cards[cardIndex], cardIndex, matchScene.player);
 			matchScene.loadHand(matchScene.player.hand);

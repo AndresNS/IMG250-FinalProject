@@ -5,9 +5,9 @@ const npcMessages = Object.freeze({
 		DEFEAT: "You lose!"
 	},
 	BLUE: {
-		GREET: "Hello, I'm Jace Beleren",
-		VICTORY: "You win!",
-		DEFEAT: "You lose!"
+		GREET: "Greetings! I'm Jace Beleren, ",
+		VICTORY: "I had hoped for more from you, Jace. But I expected as much. - Nicol Bolas",
+		DEFEAT: "It's good to learn from your failures, but I prefer to learn from the failures of others."
 	},
 	BLACK: {
 		GREET: "Hello, I'm Davriel Cane!",
@@ -47,49 +47,49 @@ const colors = Object.freeze({
 });
 
 
-let mazoenemigo = [{
-		name: "enemyCard1",
-		color: "w",
-		cost: 3,
-		power: 2,
-		toughness: 4
-	},
-	{
-		name: "enemyCard2",
-		color: "w",
-		cost: 3,
-		power: 2,
-		toughness: 4
-	},
-	{
-		name: "enemyCard3",
-		color: "w",
-		cost: 3,
-		power: 2,
-		toughness: 4
-	},
-	{
-		name: "enemyCard4",
-		color: "w",
-		cost: 3,
-		power: 2,
-		toughness: 4
-	},
-	{
-		name: "enemyCard5",
-		color: "w",
-		cost: 3,
-		power: 2,
-		toughness: 4
-	},
-	{
-		name: "enemyCard6",
-		color: "w",
-		cost: 3,
-		power: 2,
-		toughness: 4
-	}
-];
+// let mazoenemigo = [{
+// 		name: "enemyCard1",
+// 		color: "w",
+// 		cost: 3,
+// 		power: 2,
+// 		toughness: 4
+// 	},
+// 	{
+// 		name: "enemyCard2",
+// 		color: "w",
+// 		cost: 3,
+// 		power: 2,
+// 		toughness: 4
+// 	},
+// 	{
+// 		name: "enemyCard3",
+// 		color: "w",
+// 		cost: 3,
+// 		power: 2,
+// 		toughness: 4
+// 	},
+// 	{
+// 		name: "enemyCard4",
+// 		color: "w",
+// 		cost: 3,
+// 		power: 2,
+// 		toughness: 4
+// 	},
+// 	{
+// 		name: "enemyCard5",
+// 		color: "w",
+// 		cost: 3,
+// 		power: 2,
+// 		toughness: 4
+// 	},
+// 	{
+// 		name: "enemyCard6",
+// 		color: "w",
+// 		cost: 3,
+// 		power: 2,
+// 		toughness: 4
+// 	}
+// ];
 
 const whiteCards = [
 	//1 mana
@@ -230,3 +230,4 @@ const greenCards = [
 	"25eff287-6b53-4e6d-9da2-d80d05bb8c51"
 
 ];
+

@@ -1,4 +1,4 @@
-/*global Phaser, npcMessages, controls, gameSettings, whiteCards, colors*/
+/*global Phaser, npcMessages, controls, gameSettings, whiteCards, blueCards, blackCards, redCards, greenCards, colors*/
 /*eslint no-undef: "error"*/
 
 let WorldScene = new Phaser.Class({
@@ -98,11 +98,11 @@ let WorldScene = new Phaser.Class({
 		this.npcTalkTriggers.create(700, 1780, 100, 100); //npc red
 		this.npcTalkTriggers.create(335, 832, 50, 100); //npc green
 
-		this.npcTalkTriggers.children.entries[0].name = "white";
-		this.npcTalkTriggers.children.entries[1].name = "blue";
-		this.npcTalkTriggers.children.entries[2].name = "black";
-		this.npcTalkTriggers.children.entries[3].name = "red";
-		this.npcTalkTriggers.children.entries[4].name = "green";
+		this.npcTalkTriggers.children.entries[0].name = colors.WHITE;
+		this.npcTalkTriggers.children.entries[1].name = colors.BLUE;
+		this.npcTalkTriggers.children.entries[2].name = colors.BLACK;
+		this.npcTalkTriggers.children.entries[3].name = colors.RED;
+		this.npcTalkTriggers.children.entries[4].name = colors.GREEN;
 
 		this.physics.add.overlap(
 			this.player,
@@ -166,19 +166,19 @@ let DialogBoxScene = new Phaser.Class({
 		this.npc = npc;
 		/*eslint indent: ["error", "tab", { "SwitchCase": 1 }]*/
 		switch (npc) {
-			case "white":
+			case colors.WHITE:
 				this.addMessage(npcMessages.WHITE.GREET);
 				break;
-			case "blue":
+			case colors.BLUE:
 				this.addMessage(npcMessages.BLUE.GREET);
 				break;
-			case "black":
+			case colors.BLACK:
 				this.addMessage(npcMessages.BLACK.GREET);
 				break;
-			case "red":
+			case colors.RED:
 				this.addMessage(npcMessages.RED.GREET);
 				break;
-			case "green":
+			case colors.GREEN:
 				this.addMessage(npcMessages.GREEN.GREET);
 				break;
 		}
@@ -194,7 +194,7 @@ let DialogBoxScene = new Phaser.Class({
 
 			let data = [
 				this.loadPlayerDeck(),
-				this.loadEnemyDeck(),
+				this.loadEnemyDeck(this.npc),
 				this.npc
 			];
 
@@ -218,27 +218,8 @@ let DialogBoxScene = new Phaser.Class({
 	}, //end addMessage
 
 	loadPlayerDeck: function () {
-		let playerDeck = new Deck(colors.WHITE);
 
-		//1 mana
-		playerDeck.addCard(whiteCards[1], 4);
-		playerDeck.addCard(whiteCards[3], 4);
-
-		//2 mana
-		playerDeck.addCard(whiteCards[5], 4);
-		playerDeck.addCard(whiteCards[6], 4);
-		playerDeck.addCard(whiteCards[7], 2);
-		playerDeck.addCard(whiteCards[8], 4);
-
-		//3 mana
-		playerDeck.addCard(whiteCards[9], 4);
-		playerDeck.addCard(whiteCards[10], 4);
-		playerDeck.addCard(whiteCards[13], 4);
-
-		//4 mana
-		playerDeck.addCard(whiteCards[15], 2);
-		playerDeck.addCard(whiteCards[16], 2);
-		playerDeck.addCard(whiteCards[18], 2);
+		let playerDeck = buildDeck(colors.WHITE);
 
 		//Get cards from scryfall api
 		let cardsPromises = [];
@@ -263,23 +244,30 @@ let DialogBoxScene = new Phaser.Class({
 		return playerDeck;
 	}, //end loadPlayerDeck
 
-	loadEnemyDeck: function () {
-		let enemigoDeck = new Deck(colors.BLACK);
+	loadEnemyDeck: function (color) {
+		let enemyDeck = buildDeck(color);
+		
+		//Get cards from scryfall api
+		let cardsPromises = [];
 
-		enemigoDeck.addCard(mazoenemigo[0], 4);
-		enemigoDeck.addCard(mazoenemigo[1], 4);
-		enemigoDeck.addCard(mazoenemigo[2], 4);
-		enemigoDeck.addCard(mazoenemigo[3], 4);
-		enemigoDeck.addCard(mazoenemigo[4], 4);
-		enemigoDeck.addCard(mazoenemigo[5], 4);
-
-		for (let i = 0; i < 6; i++) {
-			for (let j = 0; j < 4; j++) {
-				enemigoDeck.deckCards.push(mazoenemigo[i]);
-			}
+		for (let i = 0; i < Object.keys(enemyDeck.deckList).length; i++) {
+			let url = `https://api.scryfall.com/cards/${Object.keys(enemyDeck.deckList)[i]}`;
+			cardsPromises[i] = fetch(url).then(response => {
+				return response.json();
+			}).catch(e => {
+				console.error(`There has been a problem while fetching resource "${url}": ${e.message}`);
+			});
 		}
 
-		return enemigoDeck;
+		Promise.all(cardsPromises).then(cards => {
+			for (let i = 0; i < cards.length; i++) {
+				for (let j = 0; j < enemyDeck.deckList[cards[i].id]; j++) {
+					enemyDeck.deckCards.push(cards[i]);
+				}
+			}
+		});
+
+		return enemyDeck;
 	} //end loadEnemyDeck
 }); //end DialogBoxScene
 
@@ -333,4 +321,128 @@ function Deck(color) {
 	this.shuffleDeck = function () {
 		this.deckCards = Phaser.Utils.Array.Shuffle(this.deckCards);
 	};
+}
+
+//Decklist for every color
+function buildDeck(color) {
+	let deck = new Deck(color);
+	
+	switch (color) {
+		case colors.WHITE:
+			//1 mana
+			deck.addCard(whiteCards[1], 4);
+			deck.addCard(whiteCards[3], 4);
+
+			//2 mana
+			deck.addCard(whiteCards[5], 4);
+			deck.addCard(whiteCards[6], 4);
+			deck.addCard(whiteCards[7], 2);
+			deck.addCard(whiteCards[8], 4);
+
+			//3 mana
+			deck.addCard(whiteCards[9], 4);
+			deck.addCard(whiteCards[10], 4);
+			deck.addCard(whiteCards[13], 4);
+
+			//4 mana
+			deck.addCard(whiteCards[15], 2);
+			deck.addCard(whiteCards[16], 2);
+			deck.addCard(whiteCards[18], 2);
+			break;
+		case colors.BLUE:
+			//1 mana
+			deck.addCard(blueCards[1], 2);
+			deck.addCard(blueCards[2], 2);
+			deck.addCard(blueCards[3], 4);
+
+			//2 mana
+			deck.addCard(blueCards[5], 4);
+			deck.addCard(blueCards[6], 4);
+			deck.addCard(blueCards[7], 4);
+			deck.addCard(blueCards[8], 4);
+
+			//3 mana
+			deck.addCard(blueCards[9], 2);
+			deck.addCard(blueCards[10], 4);
+			deck.addCard(blueCards[12], 4);
+
+			//4 mana
+			deck.addCard(blueCards[14], 2);
+			deck.addCard(blueCards[15], 2);
+			deck.addCard(blueCards[16], 2);
+			break;
+		case colors.BLACK:
+			//1 mana
+			deck.addCard(blackCards[0], 2);
+			deck.addCard(blackCards[1], 2);
+			deck.addCard(blackCards[2], 2);
+			deck.addCard(blackCards[3], 2);
+
+			//2 mana
+			deck.addCard(blackCards[4], 2);
+			deck.addCard(blackCards[5], 2);
+			deck.addCard(blackCards[6], 4);
+			deck.addCard(blackCards[7], 2);
+			deck.addCard(blackCards[8], 4);
+
+			//3 mana
+			deck.addCard(blackCards[10], 4);
+			deck.addCard(blackCards[12], 2);
+			deck.addCard(blackCards[13], 2);
+			deck.addCard(blackCards[14], 4);
+
+			//4 mana
+			deck.addCard(blackCards[15], 2);
+			deck.addCard(blackCards[16], 2);
+			deck.addCard(blackCards[18], 2);
+			break;
+		case colors.RED:
+			//1 mana
+			deck.addCard(redCards[0], 2);
+			deck.addCard(redCards[1], 3);
+			deck.addCard(redCards[2], 3);
+			deck.addCard(redCards[3], 4);
+
+			//2 mana
+			deck.addCard(redCards[4], 4);
+			deck.addCard(redCards[5], 2);
+			deck.addCard(redCards[6], 4);
+
+			//3 mana
+			deck.addCard(redCards[8], 4);
+			deck.addCard(redCards[9], 2);
+			deck.addCard(redCards[10], 2);
+			deck.addCard(redCards[11], 4);
+
+			//4 mana
+			deck.addCard(redCards[12], 2);
+			deck.addCard(redCards[13], 2);
+			deck.addCard(redCards[15], 2);
+			break;
+		case colors.GREEN:
+			//1 mana
+			deck.addCard(greenCards[0], 2);
+			deck.addCard(greenCards[1], 2);
+			deck.addCard(greenCards[2], 2);
+			deck.addCard(greenCards[3], 4);
+
+			//2 mana
+			deck.addCard(greenCards[5], 4);
+			deck.addCard(greenCards[6], 2);
+			deck.addCard(greenCards[7], 4);
+			deck.addCard(greenCards[8], 4);
+
+			//3 mana
+			deck.addCard(greenCards[9], 2);
+			deck.addCard(greenCards[10], 2);
+			deck.addCard(greenCards[11], 4);
+			deck.addCard(greenCards[12], 2);
+
+			//4 mana
+			deck.addCard(greenCards[13], 2);
+			deck.addCard(greenCards[15], 2);
+			deck.addCard(greenCards[16], 2);
+			break;
+	}
+	return deck;
 }
