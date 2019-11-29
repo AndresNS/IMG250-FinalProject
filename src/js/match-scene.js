@@ -64,9 +64,6 @@ let MatchScene = new Phaser.Class({
 		ui.updateMana(this.player);
 		ui.updateMana(this.enemy);
 
-		this.nextTurn(this.player);
-
-
 		// if (this.chooseFirstPlayer()) {
 		// 	//player starts
 		// 	this.nextTurn(player);
@@ -74,6 +71,18 @@ let MatchScene = new Phaser.Class({
 		// 	//enemy starts
 		// 	this.nextTurn(enemy);
 		// }
+
+
+		// this.nextTurn(this.player);
+
+		this.player.totalMana++;
+		this.player.currentMana = this.player.totalMana;
+		ui.updateMana(this.player);
+
+		//draw card
+		this.player.drawCard();
+		this.loadHand(this.player.hand);
+
 
 	}, //end startMatch
 
@@ -93,25 +102,25 @@ let MatchScene = new Phaser.Class({
 
 	nextTurn: function (player) {
 		let ui = this.scene.get("UIScene");
+		let matchScene = this;
 		//add mana
 		player.totalMana++;
 		player.currentMana = player.totalMana;
 		ui.updateMana(player);
 
-		//draw card
-		player.drawCard();
-		this.loadHand(player.hand);
 
-		//next phase (main)
-		//play cards
-
-		//next phase (attack)
-
-		//next phase (block)
-		//checkEndMatch after damage is done
-
-		//next phase (main2)
-		//play cards
+		if(player.type == "enemy"){
+			console.log("enemy turn starts");
+			setTimeout(function () {
+				console.log("enemy turn ends");
+				matchScene.nextTurn(matchScene.player);
+			}, 4000);
+		}else{
+			ui.currentMenu = ui.optionsMenu;
+			ui.currentMenu.menuItems[ui.currentMenu.menuItemIndex].select();
+			
+			console.log("player turn starts");
+		}
 
 	}, //end nextTurn
 
@@ -273,6 +282,7 @@ let Menu = new Phaser.Class({
 	}, //end moveSelectionRight
 	selectOption: function (option, menu) {
 		let uiScene = menu.scene;
+		let matchScene = uiScene.scene.get("MatchScene");
 		switch (option) {
 			case 0:
 				//cast
@@ -286,7 +296,9 @@ let Menu = new Phaser.Class({
 				break;
 			case 2:
 				//end turn
-				console.log("end turn");
+				matchScene.nextTurn(matchScene.enemy);
+				uiScene.currentMenu = null;
+
 
 				break;
 			case 3:
@@ -324,7 +336,7 @@ let UIScene = new Phaser.Class({
 		});
 	}, //end initialize
 
-	create: function (npc) {
+	create: function () {
 
 		//Menu containers
 		this.optionsMenuContainer = this.add.container();
@@ -363,13 +375,6 @@ let UIScene = new Phaser.Class({
 		this.playerLifeCounter = new LifeCounter(16, 208, this, gameSettings.STARTING_LIFE_TOTAL);
 		this.infoContainer.add(this.playerLifeCounter);
 
-		//Mana
-		// this.enemyManaCounter = new Mana(42, 40, this, npc);
-		// this.infoContainer.add(this.enemyManaCounter);
-
-		// this.playerManaCounter = new Mana(42, 306, this, "green");
-		// this.infoContainer.add(this.playerManaCounter);
-
 		//Initial state
 		this.currentMenu = this.optionsMenu;
 
@@ -378,16 +383,16 @@ let UIScene = new Phaser.Class({
 
 	}, //end create
 
-	updateMana: function(player){
+	updateMana: function (player) {
 		this.infoContainer = this.add.container();
-		if(player.type == "player"){
-			if(typeof this.playerManaCounter != "undefined"){
+		if (player.type == "player") {
+			if (typeof this.playerManaCounter != "undefined") {
 				this.playerManaCounter.destroy();
 			}
 			this.playerManaCounter = new Mana(42, 306, this, player.deck.color, player.totalMana, player.currentMana);
 			this.infoContainer.add(this.playerManaCounter);
-		}else{
-			if(typeof this.enemyManaCounter != "undefined"){
+		} else {
+			if (typeof this.enemyManaCounter != "undefined") {
 				this.enemyManaCounter.destroy();
 			}
 			this.enemyManaCounter = new Mana(42, 40, this, player.deck.color, player.totalMana, player.currentMana);
@@ -396,49 +401,59 @@ let UIScene = new Phaser.Class({
 	},
 
 	onKeyInput: function (event) {
-		if (this.currentMenu.type == "actions") {
-			switch (event.code) {
-				case "ArrowUp":
-					this.currentMenu.moveSelectionUp();
-					break;
-				case "ArrowDown":
-					this.currentMenu.moveSelectionDown();
-					break;
-				case "ArrowRight":
-					this.currentMenu.moveSelectionRight();
-					break;
-				case "ArrowLeft":
-					this.currentMenu.moveSelectionLeft();
-					break;
-				case controls.INTERACT:
-					if(this.playerBattlefield.cards.length==0 && this.currentMenu.menuItemIndex == 1){
-						console.log("no creatures in battlefield.");
-					}else{
-						this.currentMenu.menuItems[this.currentMenu.menuItemIndex].deselect();
-						this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
-					}
-					break;
+		if (this.currentMenu != null) {
+			if (this.currentMenu.type == "actions") {
+				switch (event.code) {
+					case "ArrowUp":
+						this.currentMenu.moveSelectionUp();
+						break;
+					case "ArrowDown":
+						this.currentMenu.moveSelectionDown();
+						break;
+					case "ArrowRight":
+						this.currentMenu.moveSelectionRight();
+						break;
+					case "ArrowLeft":
+						this.currentMenu.moveSelectionLeft();
+						break;
+					case controls.INTERACT:
+						if (this.playerBattlefield.cards.length == 0 && this.currentMenu.menuItemIndex == 1) {
+							console.log("no creatures in battlefield.");
+						} else {
+							this.currentMenu.menuItems[this.currentMenu.menuItemIndex].deselect();
+							this.currentMenu.selectOption(this.currentMenu.menuItemIndex, this.currentMenu);
+						}
+						break;
+				}
+			} else {
+				switch (event.code) {
+					case "ArrowRight":
+						this.currentMenu.moveSelectionRight(this.currentMenu);
+						break;
+					case "ArrowLeft":
+						this.currentMenu.moveSelectionLeft(this.currentMenu);
+						break;
+					case controls.INTERACT:
+						if (this.currentMenu.name == "battlefield") {
+							// let matchScene = this.scene.get("MatchScene");
+							// console.log();
+							this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
+
+						} else {
+							this.currentMenu.playCard(this.currentMenu.selectorPosition, this);
+
+						}
+						break;
+					case controls.CANCEL:
+						this.currentMenu.selector.destroy();
+						this.currentMenu = this.optionsMenu;
+						this.currentMenu.menuItems[this.currentMenu.menuItemIndex].select();
+
+						break;
+				}
 			}
 		} else {
-			switch (event.code) {
-				case "ArrowRight":
-					this.currentMenu.moveSelectionRight(this.currentMenu);
-					break;
-				case "ArrowLeft":
-					this.currentMenu.moveSelectionLeft(this.currentMenu);
-					break;
-				case controls.INTERACT:
-					if (this.currentMenu.name == "battlefield") {
-						// let matchScene = this.scene.get("MatchScene");
-						// console.log();
-						this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
-
-					} else {
-						this.currentMenu.playCard(this.currentMenu.selectorPosition, this);
-
-					}
-					break;
-			}
+			console.log("Oponent's turn");
 		}
 	} //end onKeyInput
 
@@ -661,7 +676,7 @@ let Battlefield = new Phaser.Class({
 				});
 				scene.scene.pause();
 
-				setTimeout(function(){
+				setTimeout(function () {
 					scene.scene.resume();
 					message.destroy();
 				}, 2000);
@@ -727,7 +742,7 @@ let HandUI = new Phaser.Class({
 		let matchScene = scene.scene.get("MatchScene");
 		let currentMana = matchScene.player.currentMana;
 		let cmc = scene.hand.cards[cardIndex].cmc;
-		if(currentMana<cmc){
+		if (currentMana < cmc) {
 			let message = scene.add.text(210, 180, "You don't have enough mana.", {
 				color: "#eeeeee",
 				align: "left",
@@ -737,11 +752,11 @@ let HandUI = new Phaser.Class({
 			});
 			// scene.scene.pause();
 
-			setTimeout(function(){
+			setTimeout(function () {
 				// scene.scene.resume();
 				message.destroy();
 			}, 1000);
-		}else{
+		} else {
 			scene.playerBattlefield.addCard(scene.hand.cards[cardIndex], cardIndex, matchScene.player);
 			matchScene.loadHand(matchScene.player.hand);
 			scene.currentMenu.selector.destroy();
@@ -752,7 +767,7 @@ let HandUI = new Phaser.Class({
 			this.scene.updateMana(matchScene.player);
 		}
 
-		
+
 	}, //end playCard
 
 	moveSelectionLeft: function (menu) {

@@ -29,7 +29,7 @@ const npcMessages = Object.freeze({
 
 const controls = Object.freeze({
 	INTERACT: "Space",
-	CANCEL: "s",
+	CANCEL: "Escape",
 	OPEN_MENU: "Enter"
 });
 
