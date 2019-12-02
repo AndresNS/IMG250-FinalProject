@@ -21,10 +21,166 @@ At the time of this submission, the game is not optimal in terms of code design,
 
 ## Chosen Library: Phaser 3
 
-pahser is for platform games... but using cams and gravity rpg are possible
+In web development, probably the main tool for manipulating graphics is the [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), and if you want to develop a game it would be necessary to manually code everything, from the physics to all kind of graphic resources and interactiones between them, which can take a long time. Fortunately, there are some libraries and frameworks that can do all the hard work for us, like Phaser.
 
-phaser vs unity
-javascript is weird (class)
+Phaser 3 is a Javascript library/framework that uses canvas and WebGL as renderer. It is most used for developing platform games, but because it has tools to manipulate the camera and physics it makes possible to build other types of games like RPG's. In addition, Phaser 3 has a lot of features that can be used to control game objects, scenes, events and other generic tools that make data manipulation easier. In syntesis, it is library that has everything you need to build a vast variety of games.
+
+Phaser let us define an Object with the configuration data for the game and then create a Game instance passing the configuration object.
+
+```
+let config = {
+	type: Phaser.AUTO,
+	parent: "game-container",
+	width: 800,
+	height: 600,
+	pixelArt: true,
+	physics: {
+		default: "arcade",
+		arcade: {
+			gravity: {
+				y: 0
+			},
+			debug: false
+		}
+	},
+	scene: [
+		BootScene,
+		WorldScene,
+		DialogBoxScene,
+		MatchScene,
+		UIScene
+	]
+};
+
+let game = new Phaser.Game(config);
+```
+
+Once we have our configuration file and the Game instance created we can create scenes to manage the different screens or stages of the game.
+
+```
+let MyScene = new Phaser.Class({
+
+	Extends: Phaser.Scene,
+
+	initialize: function MyScene() {
+		Phaser.Scene.call(this, { key: "MyScene" });
+	}, 
+
+	preload: function () {
+
+	}, 
+
+	create: function () {
+	
+	},
+  
+  update: function () {
+	
+	}
+});
+```
+
+Scenes have methods to control the different stages of each scene, the most commons are preload, create and update. In the preload function are loaded all the assets needed, then the create function is where all the initial Game Objects are created in, and the update function is constantly being called during to make updates in the current scene.
+
+
+We can also create custom game objects and containers by using Phaser Classes:
+
+```
+let MenuItem = new Phaser.Class({
+	Extends: Phaser.GameObjects.Text,
+
+	initialize: function MenuItem(x, y, text, scene) {
+		Phaser.GameObjects.Text.call(this, scene, x, y, text, {
+			color: "#eeeeee",
+			align: "left",
+			fontSize: 26
+		});
+	},
+
+	select: function () {
+		...
+	}, 
+
+	deselect: function () {
+	  ...
+	} 
+}); 
+
+let Menu = new Phaser.Class({
+	Extends: Phaser.GameObjects.Container,
+
+	initialize: function Menu(x, y, scene) {
+		Phaser.GameObjects.Container.call(this, scene, x, y);
+
+		this.menuItems = [];
+		this.menuItemIndex = 0;
+		this.x = x;
+		this.y = y;
+	},
+
+	addMenuItem: function (text) {
+		...
+	},
+
+	moveSelectionUp: function () {
+		...
+	}, 
+	moveSelectionDown: function () {
+		...
+	}, 
+	moveSelectionLeft: function () {
+		...
+	},
+	moveSelectionRight: function () {
+		...
+	}, 
+	selectOption: function (option, menu) {
+		...
+	}
+}); 
+
+let OptionsMenu = new Phaser.Class({
+	Extends: Menu,
+
+	initialize: function (x, y, scene, type, options) {
+		Menu.call(this, x, y, scene);
+		this.type = type;
+		this.options = options;
+		this.addOptions(this.options, this);
+	},
+
+	addOptions: function (options, scene) {
+		...
+	} 
+});
+```
+
+Then, we can create our custom object in the scene and store it in our container.
+```
+this.optionsMenuContainer = this.add.container();
+let options = ["Cast", "Attack", "End Turn", "Concede"];
+this.optionsMenu = new OptionsMenu(30, 450, this, "actions", options);
+this.optionsMenuContainer.add(this.optionsMenu);
+```
+
+
+Another feature that I think is really helpful in Phaser, is to be able to use a JSON tilemaps:
+```
+this.load.image("tiles", "assets/map/rpg_tileset.png");
+this.load.tilemapTiledJSON("map", "assets/map/map.json");
+
+let map = this.make.tilemap({ key: 'map' });
+let tiles = map.addTilesetImage('spritesheet', 'tiles');
+```
+By using a tilemaps we can have a tileset and phaser will build the map based on a JSON file that defines what tiles are used and where are they located.
+
+
+In conclusion, I think Phaser is a very robust and powerful game engine that allow us to develop games in an easy way without necessarily having advanced knowledge in JavaScript. Sadly, the [documentation](https://photonstorm.github.io/phaser3-docs/index.html) is a kind of hard to read and it's not well organized. However, by using [these notes](https://rexrainbow.github.io/phaser3-rex-notes/docs/site/index.html) and the [examples](http://labs.phaser.io/) provided by Phaser, is easy to learn how everything works. Of course, I used just a very small percentage of the library in this project, but even with that portion I was able to developed a potentially decent game in a short period of time, so I definitively would used it again if I had to make another web game.
+
+In my opinion, one of the downsides of the library is not really in the library itself, but in the language in which is developed in, since JavaScript is known for beign a "weird" programming language (In fact, [Phaser 4](https://phaser.io/phaser3/devlog/148) will be rewritten in TypeScript), and I could experience that during this project since a have a background mainly focused in class based languages.
+
+
+
 
 *(A 500 - 700 word report discussing your chosen API/library. Longer isn't necessarily better here, but some reports will require more information. I expect you to include an 'executive summary' that describes your API/library and convinces me why it might be useful; a deep exploration of the parts of the API/library that you have made use; sample code that shows how to use elements of the API/library (note that sample code does not count towards total word count); a conclusion describing how you potentially see using this API/library in the future, and what you have learned from this project. Note that any external sources used (including the API/library documentation site) must be properly referenced in your report.)*
 
@@ -45,7 +201,7 @@ javascript is weird (class)
 - https://phaser.io/tutorials/getting-started-phaser3/index
 
 ### Resources
+- https://www.mapeditor.org/
 - https://www.deviantart.com/mataraelfay/art/tileset-3-rpg-maker-xp-271510691
 - https://www.deviantart.com/leon-murayami/art/RMVX-Final-Fantasy-Mystic-Quest-2-0-354877315
-- https://www.mapeditor.org/
 - https://freestocktextures.com/texture/old-paper-blank-page,1099.html
