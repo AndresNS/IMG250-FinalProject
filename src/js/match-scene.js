@@ -115,6 +115,10 @@ let MatchScene = new Phaser.Class({
 	nextTurn: function (player) {
 		let ui = this.scene.get("UIScene");
 		let matchScene = this;
+
+		ui.playerBattlefield.selectorPosition = 0;
+		ui.enemyBattlefield.selectorPosition = 0;
+
 		//add mana
 		if (player.totalMana < 8) {
 			player.totalMana++;
@@ -122,6 +126,12 @@ let MatchScene = new Phaser.Class({
 			ui.updateMana(player);
 		}
 
+		//Reset player attackers
+		if(ui.playerBattlefield.cards.length>0){
+			for(let i=0; i<ui.playerBattlefield.cards.length;i++){
+				ui.playerBattlefield.cards[i].declaredAttacker = false;
+			}
+		}
 
 		if (player.type == "enemy") {
 			let message = ui.add.text(322, 180, "Enemy Turn", {
@@ -505,8 +515,7 @@ let UIScene = new Phaser.Class({
 					case controls.INTERACT:
 						if (this.currentMenu.name == "playerBattlefield") {
 							let attackerCreature = this.playerBattlefield.cards[this.currentMenu.selectorPosition];
-							if (!attackerCreature.declareAttacker) {
-								attackerCreature.declareAttacker = true;
+							if (!attackerCreature.declaredAttacker) {
 								this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
 							} else {
 
@@ -548,6 +557,7 @@ let UIScene = new Phaser.Class({
 						break;
 					case controls.CANCEL:
 						if (this.currentMenu.name == "enemyBattlefield") {
+							this.playerBattlefield.cards[this.currentMenu.selectorPosition].declaredAttacker = false;
 							this.playerBattlefield.selector.destroy();
 						}
 						this.currentMenu.selector.destroy();
@@ -771,23 +781,20 @@ let Battlefield = new Phaser.Class({
 		attackingCreature.damage = defendingCreature.power;
 		defendingCreature.damage = attackingCreature.power;
 
-		console.log(`Attacking Card: ${attackingCreature.power} / ${attackingCreature.toughness}, Damage: ${attackingCreature.damage}`);
-		console.log(`Defending Card: ${defendingCreature.power} / ${defendingCreature.toughness}, Damage: ${defendingCreature.damage}`);
+		console.log(`Attacking Creature: ${attackingCreature.power} / ${attackingCreature.toughness}, Damage: ${attackingCreature.damage}`);
+		console.log(`Defending Creature: ${defendingCreature.power} / ${defendingCreature.toughness}, Damage: ${defendingCreature.damage}`);
 
 		if (attackingCreature.damage >= attackingCreature.toughness) {
 			console.log("attackingCreature dead");
 			attackingCreature.destroy();
-			console.log("player selector pos:" + scene.playerBattlefield.selectorPosition);
 			scene.playerBattlefield.removeCard(scene.playerBattlefield.selectorPosition, matchScene.player);
-
-
+			
 			scene.playerBattlefield.reloadBattlefield(scene);
 		}
 
 		if (defendingCreature.damage >= defendingCreature.toughness) {
 			console.log("target creature dead");
 			defendingCreature.destroy();
-			console.log("enemy selector pos:" + scene.enemyBattlefield.selectorPosition);
 			scene.enemyBattlefield.removeCard(scene.enemyBattlefield.selectorPosition, matchScene.enemy);
 
 			scene.enemyBattlefield.reloadBattlefield(scene);
@@ -806,7 +813,6 @@ let Battlefield = new Phaser.Class({
 		} else {
 			//no blockers
 			enemy.life = enemy.life - attackingCard.power;
-			attackingCard.declaredAttacker = true;
 			scene.enemyLifeCounter.destroy();
 			scene.enemyLifeCounter = new LifeCounter(16, 136, scene, enemy.life);
 			scene.infoContainer.add(scene.enemyLifeCounter);
@@ -816,13 +822,17 @@ let Battlefield = new Phaser.Class({
 			scene.currentMenu = scene.optionsMenu;
 			scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
 		}
-
+		attackingCard.declaredAttacker = true;
 
 	}, //end declareAttacker
 
 	reloadBattlefield: function (scene) {
 		let matchScene = scene.scene.get("MatchScene");
-
+		let tempCards = [];
+		
+		for (let i = 0; i < this.cards.length; i++) {
+			tempCards.push(this.cards[i]);
+		}
 		for (let i = 0; i < this.cards.length; i++) {
 			this.cards[i].destroy();
 		}
@@ -835,7 +845,7 @@ let Battlefield = new Phaser.Class({
 				cardObject = matchScene.enemy.battlefield[i];
 			}
 			let card = new CardUI(this.scene, this.x * (i + 1), this.y, cardObject.id, null, cardObject.cmc, cardObject.power, cardObject.toughness, cardObject.colors[0]);
-
+			card.declaredAttacker = tempCards[i].declaredAttacker;
 			this.cards[i] = card;
 		}
 
