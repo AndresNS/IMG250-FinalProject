@@ -504,12 +504,15 @@ let UIScene = new Phaser.Class({
 						break;
 					case controls.INTERACT:
 						if (this.currentMenu.name == "playerBattlefield") {
-							// let matchScene = this.scene.get("MatchScene");
-							// console.log();
 							this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
 
 						} else if (this.currentMenu.name == "enemyBattlefield") {
-							console.log("test");
+							this.currentMenu.dealDamage(this.playerBattlefield.cards[this.playerBattlefield.selectorPosition],this.enemyBattlefield.cards[this.playerBattlefield.selectorPosition], this);
+
+							this.playerBattlefield.selector.destroy();
+							this.currentMenu.selector.destroy();
+							this.currentMenu = this.optionsMenu;
+							this.currentMenu.menuItems[this.currentMenu.menuItemIndex].select();
 						} else {
 							this.currentMenu.playCard(this.currentMenu.selectorPosition, this);
 						}
@@ -682,6 +685,7 @@ let CardUI = new Phaser.Class({
 		this.color = color;
 		this.damage = 0;
 		this.declaredAttacker = false;
+		this.alive = true;
 
 		this.setScale(0.7);
 		scene.add.existing(this);
@@ -721,6 +725,37 @@ let Battlefield = new Phaser.Class({
 		let card = new CardUI(this.scene, this.x * (this.cards.length + 1), this.y, cardObject.id, null, cardObject.cmc, cardObject.power, cardObject.toughness, cardObject.colors[0]);
 		this.cards.push(card);
 	}, //end addCard
+
+	removeCard: function (cardIndex, player) {
+		player.destroyCard(cardIndex);
+		this.cards.splice(cardIndex, 1);
+	}, //end addCard
+
+	dealDamage: function (attackingCreature, defendingCreature, scene) {
+		let matchScene = scene.scene.get("MatchScene");
+		//deal damage
+		attackingCreature.damage = defendingCreature.power;
+		defendingCreature.damage = attackingCreature.power;
+
+		if (attackingCreature.damage >= attackingCreature.toughness) {
+			console.log("attackingCreature dead");
+			scene.playerBattlefield.removeCard(scene.playerBattlefield.selectorPosition, matchScene.player);
+
+			console.log(`Attacking Card: ${attackingCreature.power} / ${attackingCreature.toughness}, Damage: ${attackingCreature.damage}`);
+			console.log(`Defending Card: ${defendingCreature.power} / ${defendingCreature.toughness}, Damage: ${defendingCreature.damage}`);
+			attackingCreature.destroy();
+		}
+
+		if (defendingCreature.damage >= defendingCreature.toughness) {
+			console.log("target creature dead");
+			scene.enemyBattlefield.removeCard(scene.enemyBattlefield.selectorPosition, matchScene.enemy);
+			console.log(`Attacking Card: ${attackingCreature.power} / ${attackingCreature.toughness}, Damage: ${attackingCreature.damage}`);
+			console.log(`Defending Card: ${defendingCreature.power} / ${defendingCreature.toughness}, Damage: ${defendingCreature.damage}`);
+			defendingCreature.destroy();
+		}
+
+		matchScene.cameras.main.shake(100, 0.01);
+	},
 
 	declareAttacker: function (attackingCard, scene) {
 		let matchScene = scene.scene.get("MatchScene");
@@ -765,16 +800,14 @@ let Battlefield = new Phaser.Class({
 
 	moveSelectionLeft: function (menu) {
 		if (this.selectorPosition > 0) {
-			console.log(this);
 			this.selectorPosition--;
 			this.selector.destroy();
-			this.createSelector(menu.scene, 150 * (this.selectorPosition), this.selector.y- 299);
+			this.createSelector(menu.scene, 150 * (this.selectorPosition), this.selector.y - 299);
 		}
 	}, //end moveSelectionLeft
 
 	moveSelectionRight: function (menu) {
 		if (this.selectorPosition < this.cards.length - 1) {
-			console.log(this);
 			this.selectorPosition++;
 			this.selector.destroy();
 			this.createSelector(menu.scene, 150 * (this.selectorPosition), this.selector.y - 299);
@@ -897,6 +930,9 @@ function Player(type, life, deck) {
 	this.playCard = function (cardIndex) {
 		this.battlefield.push(this.hand[cardIndex]);
 		this.hand.splice(cardIndex, 1);
+	};
+	this.destroyCard = function (cardIndex) {
+		this.battlefield.splice(this.battlefield[cardIndex]);
 	};
 	this.drawCard = function () {
 		if (this.hand.length < 4) {
