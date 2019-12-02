@@ -507,7 +507,7 @@ let UIScene = new Phaser.Class({
 							this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
 
 						} else if (this.currentMenu.name == "enemyBattlefield") {
-							this.currentMenu.dealDamage(this.playerBattlefield.cards[this.playerBattlefield.selectorPosition],this.enemyBattlefield.cards[this.playerBattlefield.selectorPosition], this);
+							this.currentMenu.dealDamage(this.playerBattlefield.cards[this.playerBattlefield.selectorPosition], this.enemyBattlefield.cards[this.enemyBattlefield.selectorPosition], this);
 
 							this.playerBattlefield.selector.destroy();
 							this.currentMenu.selector.destroy();
@@ -729,7 +729,7 @@ let Battlefield = new Phaser.Class({
 	removeCard: function (cardIndex, player) {
 		player.destroyCard(cardIndex);
 		this.cards.splice(cardIndex, 1);
-	}, //end addCard
+	}, //end removeCard
 
 	dealDamage: function (attackingCreature, defendingCreature, scene) {
 		let matchScene = scene.scene.get("MatchScene");
@@ -737,25 +737,27 @@ let Battlefield = new Phaser.Class({
 		attackingCreature.damage = defendingCreature.power;
 		defendingCreature.damage = attackingCreature.power;
 
+		console.log(`Attacking Card: ${attackingCreature.power} / ${attackingCreature.toughness}, Damage: ${attackingCreature.damage}`);
+		console.log(`Defending Card: ${defendingCreature.power} / ${defendingCreature.toughness}, Damage: ${defendingCreature.damage}`);
+
 		if (attackingCreature.damage >= attackingCreature.toughness) {
 			console.log("attackingCreature dead");
+			attackingCreature.destroy();
 			scene.playerBattlefield.removeCard(scene.playerBattlefield.selectorPosition, matchScene.player);
 
-			console.log(`Attacking Card: ${attackingCreature.power} / ${attackingCreature.toughness}, Damage: ${attackingCreature.damage}`);
-			console.log(`Defending Card: ${defendingCreature.power} / ${defendingCreature.toughness}, Damage: ${defendingCreature.damage}`);
-			attackingCreature.destroy();
+			scene.playerBattlefield.reloadBattlefield(scene);
 		}
 
 		if (defendingCreature.damage >= defendingCreature.toughness) {
 			console.log("target creature dead");
-			scene.enemyBattlefield.removeCard(scene.enemyBattlefield.selectorPosition, matchScene.enemy);
-			console.log(`Attacking Card: ${attackingCreature.power} / ${attackingCreature.toughness}, Damage: ${attackingCreature.damage}`);
-			console.log(`Defending Card: ${defendingCreature.power} / ${defendingCreature.toughness}, Damage: ${defendingCreature.damage}`);
 			defendingCreature.destroy();
+			scene.enemyBattlefield.removeCard(scene.enemyBattlefield.selectorPosition, matchScene.enemy);
+
+			scene.enemyBattlefield.reloadBattlefield(scene);
 		}
 
 		matchScene.cameras.main.shake(100, 0.01);
-	},
+	}, //end dealDamage
 
 	declareAttacker: function (attackingCard, scene) {
 		let matchScene = scene.scene.get("MatchScene");
@@ -797,6 +799,31 @@ let Battlefield = new Phaser.Class({
 
 
 	}, //end declareAttacker
+
+	reloadBattlefield: function (scene) {
+		let matchScene = scene.scene.get("MatchScene");
+
+		for (let i = 0; i < this.cards.length; i++) {
+			this.cards[i].destroy();
+		}
+
+		console.log("\nreloading " + this.name);
+		console.log("this.cards.length: " + this.cards.length);
+
+		for (let i = 0; i < this.cards.length; i++) {
+			let cardObject;
+			if (this.name == "playerBattlefield") {
+				cardObject = matchScene.player.battlefield[i];
+			} else {
+				cardObject = matchScene.enemy.battlefield[i];
+			}
+			let card = new CardUI(this.scene, this.x * (i + 1), this.y, cardObject.id, null, cardObject.cmc, cardObject.power, cardObject.toughness, cardObject.colors[0]);
+		}
+
+		console.log(matchScene);
+		console.log(scene);
+
+	},
 
 	moveSelectionLeft: function (menu) {
 		if (this.selectorPosition > 0) {
@@ -932,7 +959,7 @@ function Player(type, life, deck) {
 		this.hand.splice(cardIndex, 1);
 	};
 	this.destroyCard = function (cardIndex) {
-		this.battlefield.splice(this.battlefield[cardIndex]);
+		this.battlefield.splice(this.battlefield[cardIndex], 1);
 	};
 	this.drawCard = function () {
 		if (this.hand.length < 4) {
