@@ -504,8 +504,34 @@ let UIScene = new Phaser.Class({
 						break;
 					case controls.INTERACT:
 						if (this.currentMenu.name == "playerBattlefield") {
-							this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
-							
+							let attackerCreature = this.playerBattlefield.cards[this.currentMenu.selectorPosition];
+							if (!attackerCreature.declareAttacker) {
+								attackerCreature.declareAttacker = true;
+								this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
+							} else {
+
+								let message = this.add.text(110, 180, "This creature already attacked this turn.", {
+									color: "#eeeeee",
+									align: "left",
+									fontSize: 23,
+									stroke: "#000000",
+									strokeThickness: 5
+								});
+								this.scene.pause();
+
+								let uiScene = this;
+
+								setTimeout(function () {
+									uiScene.scene.resume();
+									message.destroy();
+									uiScene.currentMenu.selector.destroy();
+									uiScene.currentMenu = uiScene.optionsMenu;
+									uiScene.currentMenu.menuItems[uiScene.currentMenu.menuItemIndex].select();
+								}, 1000);
+							}
+
+
+
 						} else if (this.currentMenu.name == "enemyBattlefield") {
 							this.currentMenu.dealDamage(this.playerBattlefield.cards[this.playerBattlefield.selectorPosition], this.enemyBattlefield.cards[this.enemyBattlefield.selectorPosition], this);
 
@@ -521,7 +547,7 @@ let UIScene = new Phaser.Class({
 						}
 						break;
 					case controls.CANCEL:
-						if(this.currentMenu.name == "enemyBattlefield"){
+						if (this.currentMenu.name == "enemyBattlefield") {
 							this.playerBattlefield.selector.destroy();
 						}
 						this.currentMenu.selector.destroy();
@@ -751,17 +777,17 @@ let Battlefield = new Phaser.Class({
 		if (attackingCreature.damage >= attackingCreature.toughness) {
 			console.log("attackingCreature dead");
 			attackingCreature.destroy();
-			console.log("player selector pos:"+ scene.playerBattlefield.selectorPosition);
+			console.log("player selector pos:" + scene.playerBattlefield.selectorPosition);
 			scene.playerBattlefield.removeCard(scene.playerBattlefield.selectorPosition, matchScene.player);
-			
-			
+
+
 			scene.playerBattlefield.reloadBattlefield(scene);
 		}
 
 		if (defendingCreature.damage >= defendingCreature.toughness) {
 			console.log("target creature dead");
 			defendingCreature.destroy();
-			console.log("enemy selector pos:"+ scene.enemyBattlefield.selectorPosition);
+			console.log("enemy selector pos:" + scene.enemyBattlefield.selectorPosition);
 			scene.enemyBattlefield.removeCard(scene.enemyBattlefield.selectorPosition, matchScene.enemy);
 
 			scene.enemyBattlefield.reloadBattlefield(scene);
@@ -779,29 +805,12 @@ let Battlefield = new Phaser.Class({
 			scene.currentMenu = scene.enemyBattlefield;
 		} else {
 			//no blockers
-			if (!attackingCard.declaredAttacker) {
-				enemy.life = enemy.life - attackingCard.power;
-				attackingCard.declaredAttacker = true;
-				scene.enemyLifeCounter.destroy();
-				scene.enemyLifeCounter = new LifeCounter(16, 136, scene, enemy.life);
-				scene.infoContainer.add(scene.enemyLifeCounter);
-				matchScene.cameras.main.shake(100, 0.01);
-			} else {
-				let message = scene.add.text(110, 180, "This creature already attacked this turn.", {
-					color: "#eeeeee",
-					align: "left",
-					fontSize: 23,
-					stroke: "#000000",
-					strokeThickness: 5
-				});
-				scene.scene.pause();
-
-				setTimeout(function () {
-					scene.scene.resume();
-					message.destroy();
-				}, 2000);
-
-			}
+			enemy.life = enemy.life - attackingCard.power;
+			attackingCard.declaredAttacker = true;
+			scene.enemyLifeCounter.destroy();
+			scene.enemyLifeCounter = new LifeCounter(16, 136, scene, enemy.life);
+			scene.infoContainer.add(scene.enemyLifeCounter);
+			matchScene.cameras.main.shake(100, 0.01);
 
 			scene.currentMenu.selector.destroy();
 			scene.currentMenu = scene.optionsMenu;
@@ -818,10 +827,6 @@ let Battlefield = new Phaser.Class({
 			this.cards[i].destroy();
 		}
 
-		console.log("\nPlayer battlefield");
-		console.log(matchScene.player.battlefield);
-		console.log("\nEnemy battlefield");
-		console.log(matchScene.enemy.battlefield);
 		for (let i = 0; i < this.cards.length; i++) {
 			let cardObject;
 			if (this.name == "playerBattlefield") {
@@ -833,9 +838,6 @@ let Battlefield = new Phaser.Class({
 
 			this.cards[i] = card;
 		}
-
-		console.log(matchScene);
-		console.log(scene);
 
 	},
 
