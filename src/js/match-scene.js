@@ -151,9 +151,9 @@ let MatchScene = new Phaser.Class({
 				setTimeout(function () {
 					if (matchScene.player.battlefield.length == 0) {
 						//no blockers
-						for(let i=0;i<player.battlefield.length; i++){
+						for (let i = 0; i < player.battlefield.length; i++) {
 							if (!player.battlefield[i].declaredAttacker) {
-								setTimeout(function(){
+								setTimeout(function () {
 									matchScene.player.life = matchScene.player.life - player.battlefield[i].power;
 									player.battlefield[i].declaredAttacker = true;
 									ui.playerLifeCounter.destroy();
@@ -416,10 +416,10 @@ let UIScene = new Phaser.Class({
 
 		//Battlefields
 		this.enemyBattlefield = new Battlefield(150, 90, this);
-		this.enemyBattlefield.name = "battlefield";
+		this.enemyBattlefield.name = "enemyBattlefield";
 		this.enemyBattlefieldContainer.add(this.enemyBattlefield);
 		this.playerBattlefield = new Battlefield(150, 300, this);
-		this.playerBattlefield.name = "battlefield";
+		this.playerBattlefield.name = "playerBattlefield";
 		this.playerBattlefieldContainer.add(this.playerBattlefield);
 
 
@@ -503,14 +503,15 @@ let UIScene = new Phaser.Class({
 						this.currentMenu.moveSelectionLeft(this.currentMenu);
 						break;
 					case controls.INTERACT:
-						if (this.currentMenu.name == "battlefield") {
+						if (this.currentMenu.name == "playerBattlefield") {
 							// let matchScene = this.scene.get("MatchScene");
 							// console.log();
 							this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
 
+						} else if (this.currentMenu.name == "enemyBattlefield") {
+							console.log("test");
 						} else {
 							this.currentMenu.playCard(this.currentMenu.selectorPosition, this);
-
 						}
 						break;
 					case controls.CANCEL:
@@ -725,7 +726,9 @@ let Battlefield = new Phaser.Class({
 		let matchScene = scene.scene.get("MatchScene");
 		let enemy = matchScene.enemy;
 		if (matchScene.enemy.battlefield.length > 0) {
-			//enemy declare blockers
+			//select enemy creature
+			scene.enemyBattlefield.createSelector(scene, 0, -200);
+			scene.currentMenu = scene.enemyBattlefield;
 		} else {
 			//no blockers
 			if (!attackingCard.declaredAttacker) {
@@ -751,26 +754,30 @@ let Battlefield = new Phaser.Class({
 				}, 2000);
 
 			}
+
+			scene.currentMenu.selector.destroy();
+			scene.currentMenu = scene.optionsMenu;
+			scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
 		}
 
-		scene.currentMenu.selector.destroy();
-		scene.currentMenu = scene.optionsMenu;
-		scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
+
 	}, //end declareAttacker
 
 	moveSelectionLeft: function (menu) {
 		if (this.selectorPosition > 0) {
+			console.log(this);
 			this.selectorPosition--;
 			this.selector.destroy();
-			this.createSelector(menu.scene, 150 * (this.selectorPosition), 0);
+			this.createSelector(menu.scene, 150 * (this.selectorPosition), this.selector.y- 299);
 		}
 	}, //end moveSelectionLeft
 
 	moveSelectionRight: function (menu) {
 		if (this.selectorPosition < this.cards.length - 1) {
+			console.log(this);
 			this.selectorPosition++;
 			this.selector.destroy();
-			this.createSelector(menu.scene, 150 * (this.selectorPosition), 0);
+			this.createSelector(menu.scene, 150 * (this.selectorPosition), this.selector.y - 299);
 		}
 	}, //end moveSelectionRight
 
