@@ -505,7 +505,7 @@ let UIScene = new Phaser.Class({
 					case controls.INTERACT:
 						if (this.currentMenu.name == "playerBattlefield") {
 							this.currentMenu.declareAttacker(this.playerBattlefield.cards[this.currentMenu.selectorPosition], this);
-
+							
 						} else if (this.currentMenu.name == "enemyBattlefield") {
 							this.currentMenu.dealDamage(this.playerBattlefield.cards[this.playerBattlefield.selectorPosition], this.enemyBattlefield.cards[this.enemyBattlefield.selectorPosition], this);
 
@@ -513,15 +513,23 @@ let UIScene = new Phaser.Class({
 							this.currentMenu.selector.destroy();
 							this.currentMenu = this.optionsMenu;
 							this.currentMenu.menuItems[this.currentMenu.menuItemIndex].select();
+
+							this.playerBattlefield.selectorPosition = 0;
+							this.enemyBattlefield.selectorPosition = 0;
 						} else {
 							this.currentMenu.playCard(this.currentMenu.selectorPosition, this);
 						}
 						break;
 					case controls.CANCEL:
+						if(this.currentMenu.name == "enemyBattlefield"){
+							this.playerBattlefield.selector.destroy();
+						}
 						this.currentMenu.selector.destroy();
 						this.currentMenu = this.optionsMenu;
 						this.currentMenu.menuItems[this.currentMenu.menuItemIndex].select();
 
+						this.playerBattlefield.selectorPosition = 0;
+						this.enemyBattlefield.selectorPosition = 0;
 						break;
 				}
 			}
@@ -743,14 +751,17 @@ let Battlefield = new Phaser.Class({
 		if (attackingCreature.damage >= attackingCreature.toughness) {
 			console.log("attackingCreature dead");
 			attackingCreature.destroy();
+			console.log("player selector pos:"+ scene.playerBattlefield.selectorPosition);
 			scene.playerBattlefield.removeCard(scene.playerBattlefield.selectorPosition, matchScene.player);
-
+			
+			
 			scene.playerBattlefield.reloadBattlefield(scene);
 		}
 
 		if (defendingCreature.damage >= defendingCreature.toughness) {
 			console.log("target creature dead");
 			defendingCreature.destroy();
+			console.log("enemy selector pos:"+ scene.enemyBattlefield.selectorPosition);
 			scene.enemyBattlefield.removeCard(scene.enemyBattlefield.selectorPosition, matchScene.enemy);
 
 			scene.enemyBattlefield.reloadBattlefield(scene);
@@ -807,9 +818,10 @@ let Battlefield = new Phaser.Class({
 			this.cards[i].destroy();
 		}
 
-		console.log("\nreloading " + this.name);
-		console.log("this.cards.length: " + this.cards.length);
-
+		console.log("\nPlayer battlefield");
+		console.log(matchScene.player.battlefield);
+		console.log("\nEnemy battlefield");
+		console.log(matchScene.enemy.battlefield);
 		for (let i = 0; i < this.cards.length; i++) {
 			let cardObject;
 			if (this.name == "playerBattlefield") {
@@ -818,6 +830,8 @@ let Battlefield = new Phaser.Class({
 				cardObject = matchScene.enemy.battlefield[i];
 			}
 			let card = new CardUI(this.scene, this.x * (i + 1), this.y, cardObject.id, null, cardObject.cmc, cardObject.power, cardObject.toughness, cardObject.colors[0]);
+
+			this.cards[i] = card;
 		}
 
 		console.log(matchScene);
@@ -959,7 +973,7 @@ function Player(type, life, deck) {
 		this.hand.splice(cardIndex, 1);
 	};
 	this.destroyCard = function (cardIndex) {
-		this.battlefield.splice(this.battlefield[cardIndex], 1);
+		this.battlefield.splice(cardIndex, 1);
 	};
 	this.drawCard = function () {
 		if (this.hand.length < 4) {
