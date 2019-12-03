@@ -34,7 +34,7 @@ const controls = Object.freeze({
 });
 
 const gameSettings = Object.freeze({
-	WALK_SPEED: 1800,
+	WALK_SPEED: 300,
 	STARTING_LIFE_TOTAL: 20
 });
 
