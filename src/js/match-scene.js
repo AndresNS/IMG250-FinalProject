@@ -127,6 +127,12 @@ let MatchScene = new Phaser.Class({
 		}
 
 		//Reset player attackers and damage
+		if (player.battlefield.length > 0) {
+			for (let i = 0; i < player.battlefield.length; i++) {
+				player.battlefield[i].declaredAttacker = false;
+				player.battlefield[i].damage = 0;
+			}
+		}
 		if (ui.playerBattlefield.cards.length > 0) {
 			for (let i = 0; i < ui.playerBattlefield.cards.length; i++) {
 				ui.playerBattlefield.cards[i].declaredAttacker = false;
@@ -181,12 +187,56 @@ let MatchScene = new Phaser.Class({
 								}, 1000);
 							}
 						}
+					} else {
+						//attack player's creatures
+						for (let i = 0; i < ui.enemyBattlefield.cards.length; i++) {
+							if (!ui.enemyBattlefield.cards[i].declaredAttacker && matchScene.player.battlefield.length > 0) {
+								//get enemy creature with the lowest toughness
+								let weakerCreatureIndex = 0;
+								for (let i = 0; i < matchScene.player.battlefield.length; i++) {
+									if (matchScene.player.battlefield[i].toughness < matchScene.player.battlefield[weakerCreatureIndex].toughness) {
+										weakerCreatureIndex = i;
+									}
+								}
+
+								if (ui.enemyBattlefield.cards[i].toughness > matchScene.player.battlefield[weakerCreatureIndex].power) {
+									//deal damage
+									ui.enemyBattlefield.cards[i].damage = ui.enemyBattlefield.cards[i].damage + parseInt(ui.playerBattlefield.cards[weakerCreatureIndex].power);
+									ui.playerBattlefield.cards[weakerCreatureIndex].damage = ui.playerBattlefield.cards[weakerCreatureIndex].damage + parseInt(ui.enemyBattlefield.cards[i].power);
+
+									console.log(`Attacking Creature: ${ui.enemyBattlefield.cards[i].power} / ${ui.enemyBattlefield.cards[i].toughness}, Damage: ${ui.enemyBattlefield.cards[i].damage}`);
+									console.log(`Defending Creature: ${ui.playerBattlefield.cards[weakerCreatureIndex].power} / ${ui.playerBattlefield.cards[weakerCreatureIndex].toughness}, Damage: ${ui.playerBattlefield.cards[weakerCreatureIndex].damage}`);
+
+									ui.enemyBattlefield.cards[i].declaredAttacker = true;
+
+									if (ui.enemyBattlefield.cards[i].damage >= ui.enemyBattlefield.cards[i].toughness) {
+										console.log("attackingCreature dead");
+										ui.enemyBattlefield.cards[i].destroy();
+										ui.enemyBattlefield.removeCard(ui.enemyBattlefield.selectorPosition, matchScene.enemy);
+
+										ui.enemyBattlefield.reloadBattlefield(ui);
+									}
+
+
+									if (ui.playerBattlefield.cards[weakerCreatureIndex].damage >= ui.playerBattlefield.cards[weakerCreatureIndex].toughness) {
+										console.log("target creature dead");
+										ui.playerBattlefield.cards[weakerCreatureIndex].destroy();
+
+										ui.playerBattlefield.removeCard(ui.playerBattlefield.selectorPosition, matchScene.player);
+
+										ui.playerBattlefield.reloadBattlefield(ui);
+									}
+								}
+							}
+						}
 					}
 				}, 1000);
 			}, 1000);
 
 
 			setTimeout(function () {
+				console.log(matchScene);
+				console.log(ui);
 				console.log("enemy turn ends");
 				matchScene.nextTurn(matchScene.player);
 			}, 4000);
@@ -787,8 +837,6 @@ let Battlefield = new Phaser.Class({
 	dealDamage: function (attackingCreature, defendingCreature, scene) {
 		let matchScene = scene.scene.get("MatchScene");
 		//deal damage
-		console.log(attackingCreature);
-		console.log(defendingCreature);
 		attackingCreature.damage = attackingCreature.damage + parseInt(defendingCreature.power);
 		defendingCreature.damage = defendingCreature.damage + parseInt(attackingCreature.power);
 

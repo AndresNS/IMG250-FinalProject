@@ -1,18 +1,18 @@
 const npcMessages = Object.freeze({
 	WHITE: {
 		GREET: "Hello, I'm Gideon Jura!",
-		VICTORY: "You win!",
+		VICTORY: "You win! Congratulations!",
 		DEFEAT: "You lose!"
 	},
 	BLUE: {
 		GREET: "Greetings! I'm Jace Beleren, ",
-		VICTORY: "I had hoped for more from you, Jace. But I expected as much. - Nicol Bolas",
+		VICTORY: "You win!",
 		DEFEAT: "It's good to learn from your failures, but I prefer to learn from the failures of others."
 	},
 	BLACK: {
 		GREET: "Hello, I'm Davriel Cane!",
 		VICTORY: "You win!",
-		DEFEAT: "You lose!"
+		DEFEAT: "I had hoped for more from you. But I expected as much."
 	},
 	RED: {
 		GREET: "Hello, I'm Sarkhan Vol!",
