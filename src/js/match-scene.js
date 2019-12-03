@@ -126,10 +126,17 @@ let MatchScene = new Phaser.Class({
 			ui.updateMana(player);
 		}
 
-		//Reset player attackers
-		if(ui.playerBattlefield.cards.length>0){
-			for(let i=0; i<ui.playerBattlefield.cards.length;i++){
+		//Reset player attackers and damage
+		if (ui.playerBattlefield.cards.length > 0) {
+			for (let i = 0; i < ui.playerBattlefield.cards.length; i++) {
 				ui.playerBattlefield.cards[i].declaredAttacker = false;
+				ui.playerBattlefield.cards[i].damage = 0;
+			}
+		}
+		if (ui.enemyBattlefield.cards.length > 0) {
+			for (let i = 0; i < ui.enemyBattlefield.cards.length; i++) {
+				ui.enemyBattlefield.cards[i].declaredAttacker = false;
+				ui.enemyBattlefield.cards[i].damage = 0;
 			}
 		}
 
@@ -537,12 +544,14 @@ let UIScene = new Phaser.Class({
 									uiScene.currentMenu = uiScene.optionsMenu;
 									uiScene.currentMenu.menuItems[uiScene.currentMenu.menuItemIndex].select();
 								}, 1000);
+
+								this.playerBattlefield.selectorPosition = 0;
+								this.enemyBattlefield.selectorPosition = 0;
 							}
-
-
 
 						} else if (this.currentMenu.name == "enemyBattlefield") {
 							this.currentMenu.dealDamage(this.playerBattlefield.cards[this.playerBattlefield.selectorPosition], this.enemyBattlefield.cards[this.enemyBattlefield.selectorPosition], this);
+
 
 							this.playerBattlefield.selector.destroy();
 							this.currentMenu.selector.destroy();
@@ -778,8 +787,10 @@ let Battlefield = new Phaser.Class({
 	dealDamage: function (attackingCreature, defendingCreature, scene) {
 		let matchScene = scene.scene.get("MatchScene");
 		//deal damage
-		attackingCreature.damage = defendingCreature.power;
-		defendingCreature.damage = attackingCreature.power;
+		console.log(attackingCreature);
+		console.log(defendingCreature);
+		attackingCreature.damage = attackingCreature.damage + parseInt(defendingCreature.power);
+		defendingCreature.damage = defendingCreature.damage + parseInt(attackingCreature.power);
 
 		console.log(`Attacking Creature: ${attackingCreature.power} / ${attackingCreature.toughness}, Damage: ${attackingCreature.damage}`);
 		console.log(`Defending Creature: ${defendingCreature.power} / ${defendingCreature.toughness}, Damage: ${defendingCreature.damage}`);
@@ -788,7 +799,7 @@ let Battlefield = new Phaser.Class({
 			console.log("attackingCreature dead");
 			attackingCreature.destroy();
 			scene.playerBattlefield.removeCard(scene.playerBattlefield.selectorPosition, matchScene.player);
-			
+
 			scene.playerBattlefield.reloadBattlefield(scene);
 		}
 
@@ -829,7 +840,7 @@ let Battlefield = new Phaser.Class({
 	reloadBattlefield: function (scene) {
 		let matchScene = scene.scene.get("MatchScene");
 		let tempCards = [];
-		
+
 		for (let i = 0; i < this.cards.length; i++) {
 			tempCards.push(this.cards[i]);
 		}

@@ -46,51 +46,6 @@ const colors = Object.freeze({
 	GREEN: "G",
 });
 
-
-// let mazoenemigo = [{
-// 		name: "enemyCard1",
-// 		color: "w",
-// 		cost: 3,
-// 		power: 2,
-// 		toughness: 4
-// 	},
-// 	{
-// 		name: "enemyCard2",
-// 		color: "w",
-// 		cost: 3,
-// 		power: 2,
-// 		toughness: 4
-// 	},
-// 	{
-// 		name: "enemyCard3",
-// 		color: "w",
-// 		cost: 3,
-// 		power: 2,
-// 		toughness: 4
-// 	},
-// 	{
-// 		name: "enemyCard4",
-// 		color: "w",
-// 		cost: 3,
-// 		power: 2,
-// 		toughness: 4
-// 	},
-// 	{
-// 		name: "enemyCard5",
-// 		color: "w",
-// 		cost: 3,
-// 		power: 2,
-// 		toughness: 4
-// 	},
-// 	{
-// 		name: "enemyCard6",
-// 		color: "w",
-// 		cost: 3,
-// 		power: 2,
-// 		toughness: 4
-// 	}
-// ];
-
 const whiteCards = [
 	//1 mana
 	"0732d372-1000-435e-905b-4a6c852ba427",
