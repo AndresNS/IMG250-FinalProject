@@ -20,7 +20,7 @@ let config = {
 		BootScene,
 		WorldScene,
 		DialogBoxScene,
-		// TransitionScene,
+		TransitionScene,
 		MatchScene,
 		UIScene
 	]

@@ -191,18 +191,7 @@ let DialogBoxScene = new Phaser.Class({
 		if (this.keys.isDown) {
 			this.scene.stop("DialogBoxScene");
 			this.scene.sleep("WorldScene");
-
-			let data = [
-				this.loadPlayerDeck(),
-				this.loadEnemyDeck(this.npc),
-				this.npc
-			];
-
-			let world = this;
-
-			setTimeout(function () {
-				world.scene.launch("MatchScene", data);
-			}, 3000);
+			this.scene.launch("TransitionScene", this.npc);
 		}
 	}, //end update
 
@@ -215,96 +204,113 @@ let DialogBoxScene = new Phaser.Class({
 				useAdvancedWrap: true
 			}
 		});
-	}, //end addMessage
-
-	loadPlayerDeck: function () {
-
-		let playerDeck = buildDeck(colors.WHITE);
-
-		//Get cards from scryfall api
-		let cardsPromises = [];
-
-		for (let i = 0; i < Object.keys(playerDeck.deckList).length; i++) {
-			let url = `https://api.scryfall.com/cards/${Object.keys(playerDeck.deckList)[i]}`;
-			cardsPromises[i] = fetch(url).then(response => {
-				return response.json();
-			}).catch(e => {
-				console.error(`There has been a problem while fetching resource "${url}": ${e.message}`);
-			});
-		}
-
-		Promise.all(cardsPromises).then(cards => {
-			for (let i = 0; i < cards.length; i++) {
-				for (let j = 0; j < playerDeck.deckList[cards[i].id]; j++) {
-					playerDeck.deckCards.push(cards[i]);
-				}
-			}
-		});
-
-		return playerDeck;
-	}, //end loadPlayerDeck
-
-	loadEnemyDeck: function (color) {
-		let enemyDeck = buildDeck(color);
-		
-		//Get cards from scryfall api
-		let cardsPromises = [];
-
-		for (let i = 0; i < Object.keys(enemyDeck.deckList).length; i++) {
-			let url = `https://api.scryfall.com/cards/${Object.keys(enemyDeck.deckList)[i]}`;
-			cardsPromises[i] = fetch(url).then(response => {
-				return response.json();
-			}).catch(e => {
-				console.error(`There has been a problem while fetching resource "${url}": ${e.message}`);
-			});
-		}
-
-		Promise.all(cardsPromises).then(cards => {
-			for (let i = 0; i < cards.length; i++) {
-				for (let j = 0; j < enemyDeck.deckList[cards[i].id]; j++) {
-					enemyDeck.deckCards.push(cards[i]);
-				}
-			}
-		});
-
-		return enemyDeck;
-	} //end loadEnemyDeck
+	} //end addMessage
 }); //end DialogBoxScene
 
-// let TransitionScene = new Phaser.Class({
-// 	Extends: Phaser.Scene,
+let TransitionScene = new Phaser.Class({
+	Extends: Phaser.Scene,
 
-// 	initialize: function TransitionScene() {
-// 		Phaser.Scene.call(this, {
-// 			key: "TransitionScene"
-// 		});
-// 	}, //end initialize
+	initialize: function TransitionScene() {
+		Phaser.Scene.call(this, {
+			key: "TransitionScene"
+		});
+	}, //end initialize
 
-// 	preload: function () {}, //end preload
+	init: function (npc) {
+		this.npc = npc;
+	},
 
-// 	create: function () {
-// 		this.scene.add.text(100, 100, "Loading Decks");
-// 	}, //end create
+	preload: function () {
+		this.load.image("loading-gideon", "assets/loading-gideon.jpg");
+		this.load.image("loading-jace", "assets/loading-jace.jpg");
+		this.load.image("loading-davriel", "assets/loading-davriel.jpg");
+		this.load.image("loading-sarkhan", "assets/loading-sarkhan.jpg");
+		this.load.image("loading-nissa", "assets/loading-nissa.jpg");
+	}, //end preload
 
-// 	update: function () {
-// 		if(){
+	create: function () {
+		let matchBg;
+		switch (this.npc) {
+			case colors.WHITE:
+				matchBg = this.add.sprite(0, 0, "loading-gideon");
+				break;
+			case colors.BLUE:
+				matchBg = this.add.sprite(0, 0, "loading-jace");
+				break;
+			case colors.BLACK:
+				matchBg = this.add.sprite(0, 0, "loading-davriel");
+				break;
+			case colors.RED:
+				matchBg = this.add.sprite(0, 0, "loading-sarkhan");
+				break;
+			case colors.GREEN:
+				matchBg = this.add.sprite(0, 0, "loading-nissa");
+				break;
+		}
+		matchBg.setOrigin(0, 0);
 
-// 		}
-// 		this.scene.stop("TransitionScene");
-// 		let data = [
-// 			this.loadPlayerDeck(),
-// 			this.loadEnemyDeck(),
-// 			this.npc
-// 		];
+		const startMatch = async () => {
+			let results = await this.loadDecks()[0];
+			let playerDeck = this.loadDecks()[1];
+			let enemyDeck = this.loadDecks()[2];
 
-// 		let world = this;
+			for (let i = 0; i < results.length; i++) {
+				if (i < Object.keys(playerDeck.deckList).length) {
+					for (let j = 0; j < playerDeck.deckList[results[i].id]; j++) {
+						playerDeck.deckCards.push(results[i]);
+					}
+				} else {
+					for (let j = 0; j < enemyDeck.deckList[results[i].id]; j++) {
+						enemyDeck.deckCards.push(results[i]);
+					}
+				}
+			}
 
-// 		setTimeout(function () {
-// 			world.scene.launch("MatchScene", data);
-// 		}, 3000);
+			this.scene.launch("MatchScene", [playerDeck, enemyDeck, this.npc]);
+		};
 
-// 	} //end update
-// }); //end WorldScene
+		startMatch();
+
+	}, //end create
+
+	update: function () {
+
+	}, //end update
+
+	loadDecks: function () {
+
+		let playerDeck = buildDeck(colors.GREEN);
+		let enemyDeck = buildDeck(this.npc);
+		let playerDeckListKeys = Object.keys(playerDeck.deckList);
+		let enemyDeckListKeys = Object.keys(enemyDeck.deckList);
+		let cardsPromises = [];
+
+		let cardTotal = playerDeckListKeys.length + enemyDeckListKeys.length;
+
+		for (let i = 0; i < cardTotal; i++) {
+			let url;
+			if (i < playerDeckListKeys.length) {
+				url = `https://api.scryfall.com/cards/${playerDeckListKeys[i]}`;
+			} else {
+				url = `https://api.scryfall.com/cards/${enemyDeckListKeys[i - playerDeckListKeys.length]}`;
+			}
+			cardsPromises[i] = fetch(url).then(response => {
+				return response.json();
+			}).catch(e => {
+				console.error(`There has been a problem while fetching resource "${url}": ${e.message}`);
+			});
+		}
+
+		const getCards = async () => {
+			let results = await Promise.all(cardsPromises);
+			return results;
+		};
+
+		return [getCards(), playerDeck, enemyDeck];
+
+	} //end loadDecks
+
+}); //end TransitionScene
 
 function Deck(color) {
 	this.color = color;
@@ -326,7 +332,7 @@ function Deck(color) {
 //Decklist for every color
 function buildDeck(color) {
 	let deck = new Deck(color);
-	
+
 	switch (color) {
 		case colors.WHITE:
 			//1 mana
