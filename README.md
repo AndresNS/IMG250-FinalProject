@@ -102,7 +102,7 @@ let MenuItem = new Phaser.Class({
 	}, 
 
 	deselect: function () {
-	  ...
+		...
 	} 
 }); 
 
@@ -158,7 +158,7 @@ let OptionsMenu = new Phaser.Class({
 Then, we can create our custom object in the scene and store it in our container.
 ```
 this.optionsMenuContainer = this.add.container();
-let options = ["Cast", "Attack", "End Turn", "Concede"];
+const options = ["Cast", "Attack", "End Turn", "Concede"];
 this.optionsMenu = new OptionsMenu(30, 450, this, "actions", options);
 this.optionsMenuContainer.add(this.optionsMenu);
 ```
