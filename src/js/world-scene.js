@@ -10,6 +10,10 @@ let WorldScene = new Phaser.Class({
 		});
 	}, //end initialize
 
+	init: function (data) {
+		console.log(data);
+	},
+
 	preload: function () {}, //end preload
 
 	create: function () {
@@ -111,7 +115,6 @@ let WorldScene = new Phaser.Class({
 			false,
 			this
 		);
-
 		this.sys.events.on("wake", this.wake, this);
 	}, //end create
 
@@ -145,11 +148,28 @@ let WorldScene = new Phaser.Class({
 		}
 	}, //end update
 
-	wake: function () {
+	wake: function (data) {
 		this.cursors.left.reset();
 		this.cursors.right.reset();
 		this.cursors.up.reset();
 		this.cursors.down.reset();
+
+		if(!data.scene.isPostMatch) {
+			//is end match
+			this.scene.pause("WorldScene");
+			let dialogData = [this.npcColor, data.scene.result, false];
+	
+			if (data.scene.result) {
+				this.scene.launch("DialogBoxScene", dialogData);
+			} else {
+				this.scene.launch("DialogBoxScene", dialogData);
+			}
+		}else{
+			//is post match
+			this.scene.stop("DialogBoxScene");
+			data.scene.isPostMatch = false;
+		}
+		
 	},
 
 	onEnemyMeet: function (player, zone) {
@@ -164,8 +184,9 @@ let WorldScene = new Phaser.Class({
 		} else {
 			player.body.y = player.body.y + 20;
 		}
+		let data = [zone.name, "startMatch"];
 		this.scene.pause("WorldScene");
-		this.scene.launch("DialogBoxScene", zone.name);
+		this.scene.launch("DialogBoxScene", data);
 
 	} //end onEnemyMeet
 }); //end WorldScene
@@ -179,30 +200,76 @@ let DialogBoxScene = new Phaser.Class({
 		});
 	}, //end initialize
 
-	create: function (npc) {
+	create: function (data) {
 		//dialog box
 		let dialogbox = this.add.sprite(0, 480, "dialogbox");
 		dialogbox.setScale(2);
 		dialogbox.setOrigin(0, 0);
-		this.npc = npc;
-		/*eslint indent: ["error", "tab", { "SwitchCase": 1 }]*/
-		switch (npc) {
-			case colors.WHITE:
-				this.addMessage(npcMessages.WHITE.GREET);
-				break;
-			case colors.BLUE:
-				this.addMessage(npcMessages.BLUE.GREET);
-				break;
-			case colors.BLACK:
-				this.addMessage(npcMessages.BLACK.GREET);
-				break;
-			case colors.RED:
-				this.addMessage(npcMessages.RED.GREET);
-				break;
-			case colors.GREEN:
-				this.addMessage(npcMessages.GREEN.GREET);
-				break;
+
+		this.npc = data[0];
+
+		if (data[1] !== "startMatch") {
+			this.isEndMatch = true;
+			if (data[1]) {
+				/*eslint indent: ["error", "tab", { "SwitchCase": 1 }]*/
+				switch (data[0]) {
+					case colors.WHITE:
+						this.addMessage(npcMessages.WHITE.VICTORY);
+						break;
+					case colors.BLUE:
+						this.addMessage(npcMessages.BLUE.VICTORY);
+						break;
+					case colors.BLACK:
+						this.addMessage(npcMessages.BLACK.VICTORY);
+						break;
+					case colors.RED:
+						this.addMessage(npcMessages.RED.VICTORY);
+						break;
+					case colors.GREEN:
+						this.addMessage(npcMessages.GREEN.VICTORY);
+						break;
+				}
+			} else {
+				switch (data[0]) {
+					case colors.WHITE:
+						this.addMessage(npcMessages.WHITE.DEFEAT);
+						break;
+					case colors.BLUE:
+						this.addMessage(npcMessages.BLUE.DEFEAT);
+						break;
+					case colors.BLACK:
+						this.addMessage(npcMessages.BLACK.DEFEAT);
+						break;
+					case colors.RED:
+						this.addMessage(npcMessages.RED.DEFEAT);
+						break;
+					case colors.GREEN:
+						this.addMessage(npcMessages.GREEN.DEFEAT);
+						break;
+				}
+			}
+
+		} else {
+			this.isEndMatch = false;
+			switch (data[0]) {
+				case colors.WHITE:
+					this.addMessage(npcMessages.WHITE.GREET);
+					break;
+				case colors.BLUE:
+					this.addMessage(npcMessages.BLUE.GREET);
+					break;
+				case colors.BLACK:
+					this.addMessage(npcMessages.BLACK.GREET);
+					break;
+				case colors.RED:
+					this.addMessage(npcMessages.RED.GREET);
+					break;
+				case colors.GREEN:
+					this.addMessage(npcMessages.GREEN.GREET);
+					break;
+			}
 		}
+
 
 		//user inputs
 		this.keys = this.input.keyboard.addKey(controls.INTERACT);
@@ -210,9 +277,16 @@ let DialogBoxScene = new Phaser.Class({
 
 	update: function () {
 		if (this.keys.isDown) {
-			this.scene.stop("DialogBoxScene");
-			this.scene.sleep("WorldScene");
-			this.scene.launch("TransitionScene", this.npc);
+			if(this.isEndMatch){
+				this.scene.stop("DialogBoxScene");
+				let world = this.scene.get("WorldScene");
+				world.isPostMatch = true;
+				this.scene.wake("WorldScene");
+			}else{
+				this.scene.stop("DialogBoxScene");
+				this.scene.sleep("WorldScene");
+				this.scene.launch("TransitionScene", this.npc);
+			}
 		}
 	}, //end update
 

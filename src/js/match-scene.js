@@ -180,6 +180,8 @@ let MatchScene = new Phaser.Class({
 								setTimeout(function () {
 									matchScene.player.life = matchScene.player.life - player.battlefield[i].power;
 									if (matchScene.player.life <= 0) {
+										let worldScene = matchScene.scene.get("WorldScene");
+										worldScene.result = false;
 										matchScene.scene.stop("MatchScene");
 										matchScene.scene.stop("UIScene");
 										matchScene.scene.wake("WorldScene");
@@ -432,6 +434,7 @@ let Menu = new Phaser.Class({
 	selectOption: function (option, menu) {
 		let uiScene = menu.scene;
 		let matchScene = uiScene.scene.get("MatchScene");
+		let worldScene = uiScene.scene.get("WorldScene");
 		switch (option) {
 			case 0:
 				//cast
@@ -450,10 +453,11 @@ let Menu = new Phaser.Class({
 				break;
 			case 3:
 				//concede
+				worldScene.result = false;
+				worldScene.npcColor = matchScene.enemy.deck.color;
 				matchScene.scene.stop("MatchScene");
 				matchScene.scene.stop("UIScene");
 				matchScene.scene.wake("WorldScene");
-
 				break;
 		}
 	}
@@ -895,6 +899,8 @@ let Battlefield = new Phaser.Class({
 			scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
 
 			if (enemy.life <= 0) {
+				let worldScene = matchScene.scene.get("WorldScene");
+				worldScene.result = true;
 				matchScene.scene.stop("MatchScene");
 				matchScene.scene.stop("UIScene");
 				matchScene.scene.wake("WorldScene");
