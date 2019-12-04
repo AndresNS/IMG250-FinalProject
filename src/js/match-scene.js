@@ -235,8 +235,6 @@ let MatchScene = new Phaser.Class({
 
 
 			setTimeout(function () {
-				console.log(matchScene);
-				console.log(ui);
 				console.log("enemy turn ends");
 				matchScene.nextTurn(matchScene.player);
 			}, 4000);
