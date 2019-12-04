@@ -111,6 +111,8 @@ let WorldScene = new Phaser.Class({
 			false,
 			this
 		);
+
+		this.sys.events.on("wake", this.wake, this);
 	}, //end create
 
 	update: function () {
@@ -143,9 +145,28 @@ let WorldScene = new Phaser.Class({
 		}
 	}, //end update
 
+	wake: function () {
+		this.cursors.left.reset();
+		this.cursors.right.reset();
+		this.cursors.up.reset();
+		this.cursors.down.reset();
+	},
+
 	onEnemyMeet: function (player, zone) {
+		if (zone.x > player.x) {
+			player.body.x = player.body.x - 20;
+		} else {
+			player.body.x = player.body.x + 20;
+		}
+
+		if (zone.y > player.y) {
+			player.body.y = player.body.y - 20;
+		} else {
+			player.body.y = player.body.y + 20;
+		}
 		this.scene.pause("WorldScene");
 		this.scene.launch("DialogBoxScene", zone.name);
+
 	} //end onEnemyMeet
 }); //end WorldScene
 
@@ -265,7 +286,7 @@ let TransitionScene = new Phaser.Class({
 					}
 				}
 			}
-
+			this.scene.stop("TransitionScene");
 			this.scene.launch("MatchScene", [playerDeck, enemyDeck, this.npc]);
 		};
 

@@ -170,6 +170,7 @@ let MatchScene = new Phaser.Class({
 					}
 				}
 
+
 				//attack
 				setTimeout(function () {
 					if (matchScene.player.battlefield.length == 0) {
@@ -178,15 +179,28 @@ let MatchScene = new Phaser.Class({
 							if (!player.battlefield[i].declaredAttacker) {
 								setTimeout(function () {
 									matchScene.player.life = matchScene.player.life - player.battlefield[i].power;
+									if (matchScene.player.life <= 0) {
+										matchScene.scene.stop("MatchScene");
+										matchScene.scene.stop("UIScene");
+										matchScene.scene.wake("WorldScene");
+										let id = window.setTimeout(function () {}, 0);
+
+										while (id--) {
+											window.clearTimeout(id);
+										}
+										return;
+									}
 									player.battlefield[i].declaredAttacker = true;
 									ui.playerLifeCounter.destroy();
 									ui.playerLifeCounter = new LifeCounter(16, 208, ui, matchScene.player.life);
 									ui.infoContainer.add(ui.playerLifeCounter);
 									matchScene.cameras.main.shake(100, 0.01);
 									console.log(player.battlefield[i].name + " is attacking you for " + player.battlefield[i].power);
+
 								}, 1000);
 							}
 						}
+
 					} else {
 						//attack player's creatures
 						for (let i = 0; i < ui.enemyBattlefield.cards.length; i++) {
@@ -231,13 +245,14 @@ let MatchScene = new Phaser.Class({
 						}
 					}
 				}, 1000);
-			}, 1000);
 
+			}, 1000);
 
 			setTimeout(function () {
 				console.log("enemy turn ends");
 				matchScene.nextTurn(matchScene.player);
 			}, 4000);
+
 		} else {
 
 			let message = ui.add.text(322, 180, "Your Turn", {
@@ -878,6 +893,18 @@ let Battlefield = new Phaser.Class({
 			scene.currentMenu.selector.destroy();
 			scene.currentMenu = scene.optionsMenu;
 			scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
+
+			if (enemy.life <= 0) {
+				matchScene.scene.stop("MatchScene");
+				matchScene.scene.stop("UIScene");
+				matchScene.scene.wake("WorldScene");
+				let id = window.setTimeout(function () {}, 0);
+
+				while (id--) {
+					window.clearTimeout(id);
+				}
+				return;
+			}
 		}
 		attackingCard.declaredAttacker = true;
 
