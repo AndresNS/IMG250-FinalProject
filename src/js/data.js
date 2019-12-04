@@ -1,3 +1,5 @@
+const radios = document.getElementsByName("color");
+
 const npcMessages = Object.freeze({
 	WHITE: {
 		GREET: "Hello, I'm Gideon Jura!",

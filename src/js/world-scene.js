@@ -1,4 +1,4 @@
-/*global Phaser, npcMessages, controls, gameSettings, whiteCards, blueCards, blackCards, redCards, greenCards, colors*/
+/*global Phaser, npcMessages, controls, gameSettings, whiteCards, blueCards, blackCards, redCards, greenCards, colors, radios*/
 /*eslint no-undef: "error"*/
 
 let WorldScene = new Phaser.Class({
@@ -278,8 +278,15 @@ let TransitionScene = new Phaser.Class({
 	}, //end update
 
 	loadDecks: function () {
+		let colorSelection;
+		for (let i = 0, length = radios.length; i < length; i++) {
+			if (radios[i].checked) {
+				colorSelection = radios[i].value;
+				break;
+			}
+		}
 
-		let playerDeck = buildDeck(colors.GREEN);
+		let playerDeck = buildDeck(colorSelection);
 		let enemyDeck = buildDeck(this.npc);
 		let playerDeckListKeys = Object.keys(playerDeck.deckList);
 		let enemyDeckListKeys = Object.keys(enemyDeck.deckList);
