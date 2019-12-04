@@ -447,12 +447,12 @@ let Menu = new Phaser.Class({
 				//end turn
 				matchScene.nextTurn(matchScene.enemy);
 				uiScene.currentMenu = null;
-
-
 				break;
 			case 3:
 				//concede
-				console.log("concede");
+				matchScene.scene.stop("MatchScene");
+				matchScene.scene.stop("UIScene");
+				matchScene.scene.wake("WorldScene");
 
 				break;
 		}
