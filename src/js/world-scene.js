@@ -155,11 +155,7 @@ let WorldScene = new Phaser.Class({
 			this.scene.pause("WorldScene");
 			let dialogData = [this.npcColor, data.scene.result, false];
 	
-			if (data.scene.result) {
-				this.scene.launch("DialogBoxScene", dialogData);
-			} else {
-				this.scene.launch("DialogBoxScene", dialogData);
-			}
+			this.scene.launch("DialogBoxScene", dialogData);
 		}else{
 			//is post match
 			this.scene.stop("DialogBoxScene");
