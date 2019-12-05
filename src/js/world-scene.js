@@ -291,11 +291,11 @@ let DialogBoxScene = new Phaser.Class({
 	}, //end update
 
 	addMessage: function (text) {
-		this.message = this.add.text(30, 500, text, {
+		this.message = this.add.text(20, 500, text, {
 			color: "#ffffff",
-			fontSize: 26,
+			fontSize: 25,
 			wordWrap: {
-				width: 740,
+				width: 760,
 				useAdvancedWrap: true
 			}
 		});
