@@ -78,12 +78,11 @@ let MatchScene = new Phaser.Class({
 
 		// if (this.chooseFirstPlayer()) {
 		// 	//player starts
-		// 	this.nextTurn(player);
+		// 	this.nextTurn(this.player);
 		// } else {
 		// 	//enemy starts
-		// 	this.nextTurn(enemy);
+		// 	this.nextTurn(this.enemy);
 		// }
-
 
 		// this.nextTurn(this.player);
 
@@ -91,10 +90,10 @@ let MatchScene = new Phaser.Class({
 		this.player.currentMana = this.player.totalMana;
 		ui.updateMana(this.player);
 
-		//draw card
+		// draw card
 		this.player.drawCard();
 		this.loadHand(this.player.hand);
-
+		this.loadHand(this.player.hand);
 
 	}, //end startMatch
 
@@ -122,9 +121,9 @@ let MatchScene = new Phaser.Class({
 		//add mana
 		if (player.totalMana < 8) {
 			player.totalMana++;
-			player.currentMana = player.totalMana;
-			ui.updateMana(player);
 		}
+		player.currentMana = player.totalMana;
+		ui.updateMana(player);
 
 		//Reset player attackers and damage
 		if (player.battlefield.length > 0) {
@@ -170,6 +169,7 @@ let MatchScene = new Phaser.Class({
 					}
 				}
 
+
 				//attack
 				setTimeout(function () {
 					if (matchScene.player.battlefield.length == 0) {
@@ -178,15 +178,31 @@ let MatchScene = new Phaser.Class({
 							if (!player.battlefield[i].declaredAttacker) {
 								setTimeout(function () {
 									matchScene.player.life = matchScene.player.life - player.battlefield[i].power;
+									if (matchScene.player.life <= 0) {
+										let worldScene = matchScene.scene.get("WorldScene");
+										worldScene.result = false;
+										worldScene.npcColor = matchScene.enemy.deck.color;
+										matchScene.scene.stop("MatchScene");
+										matchScene.scene.stop("UIScene");
+										matchScene.scene.wake("WorldScene");
+										let id = window.setTimeout(function () {}, 0);
+
+										while (id--) {
+											window.clearTimeout(id);
+										}
+										return;
+									}
 									player.battlefield[i].declaredAttacker = true;
 									ui.playerLifeCounter.destroy();
 									ui.playerLifeCounter = new LifeCounter(16, 208, ui, matchScene.player.life);
 									ui.infoContainer.add(ui.playerLifeCounter);
 									matchScene.cameras.main.shake(100, 0.01);
 									console.log(player.battlefield[i].name + " is attacking you for " + player.battlefield[i].power);
+
 								}, 1000);
 							}
 						}
+
 					} else {
 						//attack player's creatures
 						for (let i = 0; i < ui.enemyBattlefield.cards.length; i++) {
@@ -231,15 +247,14 @@ let MatchScene = new Phaser.Class({
 						}
 					}
 				}, 1000);
+
 			}, 1000);
 
-
 			setTimeout(function () {
-				console.log(matchScene);
-				console.log(ui);
 				console.log("enemy turn ends");
 				matchScene.nextTurn(matchScene.player);
 			}, 4000);
+
 		} else {
 
 			let message = ui.add.text(322, 180, "Your Turn", {
@@ -265,10 +280,6 @@ let MatchScene = new Phaser.Class({
 
 	}, //end nextTurn
 
-	endMatch: function () {
-
-	}, //end endMatch
-
 	checkEndMatch: function (playerLife, enemyLife) {
 		let victory = false;
 		let defeat = false;
@@ -283,14 +294,6 @@ let MatchScene = new Phaser.Class({
 
 		return victory || defeat;
 	}, //end endMatch
-
-	loadEnemyDeck: function () {
-
-	}, //end loadEnemyDeck
-
-	loadPlayerDeck: function () {
-
-	}, //end loadPlayerDeck
 
 	chooseFirstPlayer: function () {
 		if (Math.random() < 0.5) {
@@ -419,6 +422,7 @@ let Menu = new Phaser.Class({
 	selectOption: function (option, menu) {
 		let uiScene = menu.scene;
 		let matchScene = uiScene.scene.get("MatchScene");
+		let worldScene = uiScene.scene.get("WorldScene");
 		switch (option) {
 			case 0:
 				//cast
@@ -434,13 +438,14 @@ let Menu = new Phaser.Class({
 				//end turn
 				matchScene.nextTurn(matchScene.enemy);
 				uiScene.currentMenu = null;
-
-
 				break;
 			case 3:
 				//concede
-				console.log("concede");
-
+				worldScene.result = false;
+				worldScene.npcColor = matchScene.enemy.deck.color;
+				matchScene.scene.stop("MatchScene");
+				matchScene.scene.stop("UIScene");
+				matchScene.scene.wake("WorldScene");
 				break;
 		}
 	}
@@ -680,11 +685,7 @@ let Phases = new Phaser.Class({
 		this.phaseItems.push(phaseItem);
 		this.add(phaseItem);
 		return phaseItem;
-	}, //end addPhaseItem
-
-	nextPhase: function () {
-
-	}, //end nextPhase
+	} //end addPhaseItem
 
 }); //end Phases
 
@@ -792,23 +793,7 @@ let CardUI = new Phaser.Class({
 
 		this.setScale(0.7);
 		scene.add.existing(this);
-	}, //end initialize
-
-	attack: function () {
-
-	}, //end attack
-
-	block: function (target) {
-
-	}, //end block
-
-	takeDamage: function () {
-
-	}, //end takeDamage
-
-	resetDamage: function () {
-
-	} //end resetDamage
+	} //end initialize
 }); //end CardUI
 
 let Battlefield = new Phaser.Class({
@@ -880,6 +865,20 @@ let Battlefield = new Phaser.Class({
 			scene.currentMenu.selector.destroy();
 			scene.currentMenu = scene.optionsMenu;
 			scene.currentMenu.menuItems[scene.currentMenu.menuItemIndex].select();
+
+			if (enemy.life <= 0) {
+				let worldScene = matchScene.scene.get("WorldScene");
+				worldScene.result = true;
+				matchScene.scene.stop("MatchScene");
+				matchScene.scene.stop("UIScene");
+				matchScene.scene.wake("WorldScene");
+				let id = window.setTimeout(function () {}, 0);
+
+				while (id--) {
+					window.clearTimeout(id);
+				}
+				return;
+			}
 		}
 		attackingCard.declaredAttacker = true;
 

@@ -1,28 +1,30 @@
+const radios = document.getElementsByName("color");
+
 const npcMessages = Object.freeze({
 	WHITE: {
-		GREET: "Hello, I'm Gideon Jura!",
-		VICTORY: "You win! Congratulations!",
-		DEFEAT: "You lose!"
+		GREET: "The good don't sit and wait for the evil to act. They prepare to defend. They prepare to punish",
+		VICTORY: "Don't mourn for me. This is my destiny.",
+		DEFEAT: "I had hoped for more from you. But I expected as much."
 	},
 	BLUE: {
-		GREET: "Greetings! I'm Jace Beleren, ",
-		VICTORY: "You win!",
+		GREET: "I've heard it said that a Planeswalker is someone who can always run from danger. But Gideon's right: we're also the ones who can choose to stay.",
+		VICTORY: "My past is part of who I am, but it is not who I am.",
 		DEFEAT: "It's good to learn from your failures, but I prefer to learn from the failures of others."
 	},
 	BLACK: {
-		GREET: "Hello, I'm Davriel Cane!",
-		VICTORY: "You win!",
-		DEFEAT: "I had hoped for more from you. But I expected as much."
+		GREET: "Have you ever seen a world fall to its knees? Watch, and learn.",
+		VICTORY: "I have suffered a thousand lifetimes of agony on this wretched world. I’ve far less time to share with you, but I assure you, no less pain.",
+		DEFEAT: "I will flay the skin from your flesh and the flesh from your bones and scrape your bones dry. And still you will not have suffered enough."
 	},
 	RED: {
-		GREET: "Hello, I'm Sarkhan Vol!",
-		VICTORY: "You win!",
-		DEFEAT: "You lose!"
+		GREET: "Words are a waste of time. Destruction is a language everyone understands.",
+		VICTORY: "Rage courses in every heart, yearning to betray its rational prison.",
+		DEFEAT: "Of course you should fight fire with fire. You should fight everything with fire."
 	},
 	GREEN: {
-		GREET: "Hello, I'm Nissa Revane!",
-		VICTORY: "You win!",
-		DEFEAT: "You lose!"
+		GREET: "Life grows everywhere. My kin merely find those places where it grows strongest.",
+		VICTORY: "I've already seen so much evil, so much darkness. Why do you insist on adding more?",
+		DEFEAT: "Why fight the world when you know who will win?"
 	}
 
 });
