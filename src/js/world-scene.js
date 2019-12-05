@@ -10,10 +10,6 @@ let WorldScene = new Phaser.Class({
 		});
 	}, //end initialize
 
-	init: function (data) {
-		console.log(data);
-	},
-
 	preload: function () {}, //end preload
 
 	create: function () {

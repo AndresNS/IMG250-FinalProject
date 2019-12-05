@@ -78,12 +78,11 @@ let MatchScene = new Phaser.Class({
 
 		// if (this.chooseFirstPlayer()) {
 		// 	//player starts
-		// 	this.nextTurn(player);
+		// 	this.nextTurn(this.player);
 		// } else {
 		// 	//enemy starts
-		// 	this.nextTurn(enemy);
+		// 	this.nextTurn(this.enemy);
 		// }
-
 
 		// this.nextTurn(this.player);
 
@@ -91,10 +90,10 @@ let MatchScene = new Phaser.Class({
 		this.player.currentMana = this.player.totalMana;
 		ui.updateMana(this.player);
 
-		//draw card
+		// draw card
 		this.player.drawCard();
 		this.loadHand(this.player.hand);
-
+		this.loadHand(this.player.hand);
 
 	}, //end startMatch
 
@@ -122,9 +121,9 @@ let MatchScene = new Phaser.Class({
 		//add mana
 		if (player.totalMana < 8) {
 			player.totalMana++;
-			player.currentMana = player.totalMana;
-			ui.updateMana(player);
 		}
+		player.currentMana = player.totalMana;
+		ui.updateMana(player);
 
 		//Reset player attackers and damage
 		if (player.battlefield.length > 0) {
@@ -182,6 +181,7 @@ let MatchScene = new Phaser.Class({
 									if (matchScene.player.life <= 0) {
 										let worldScene = matchScene.scene.get("WorldScene");
 										worldScene.result = false;
+										worldScene.npcColor = matchScene.enemy.deck.color;
 										matchScene.scene.stop("MatchScene");
 										matchScene.scene.stop("UIScene");
 										matchScene.scene.wake("WorldScene");
@@ -280,10 +280,6 @@ let MatchScene = new Phaser.Class({
 
 	}, //end nextTurn
 
-	endMatch: function () {
-
-	}, //end endMatch
-
 	checkEndMatch: function (playerLife, enemyLife) {
 		let victory = false;
 		let defeat = false;
@@ -298,14 +294,6 @@ let MatchScene = new Phaser.Class({
 
 		return victory || defeat;
 	}, //end endMatch
-
-	loadEnemyDeck: function () {
-
-	}, //end loadEnemyDeck
-
-	loadPlayerDeck: function () {
-
-	}, //end loadPlayerDeck
 
 	chooseFirstPlayer: function () {
 		if (Math.random() < 0.5) {
@@ -697,11 +685,7 @@ let Phases = new Phaser.Class({
 		this.phaseItems.push(phaseItem);
 		this.add(phaseItem);
 		return phaseItem;
-	}, //end addPhaseItem
-
-	nextPhase: function () {
-
-	}, //end nextPhase
+	} //end addPhaseItem
 
 }); //end Phases
 
@@ -809,23 +793,7 @@ let CardUI = new Phaser.Class({
 
 		this.setScale(0.7);
 		scene.add.existing(this);
-	}, //end initialize
-
-	attack: function () {
-
-	}, //end attack
-
-	block: function (target) {
-
-	}, //end block
-
-	takeDamage: function () {
-
-	}, //end takeDamage
-
-	resetDamage: function () {
-
-	} //end resetDamage
+	} //end initialize
 }); //end CardUI
 
 let Battlefield = new Phaser.Class({
