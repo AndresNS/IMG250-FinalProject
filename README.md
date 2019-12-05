@@ -4,6 +4,8 @@
 
 This repository contains my project for the course *IMG-250, Applied JavaScript*, an RPG/Card Game developed in JavaScript using the [Phaser 3](https://phaser.io/) library and the [Scryfall API](https://scryfall.com/docs/api).
 
+The deployment is available [here](https://andresns.github.io/IMG250-FinalProject/).
+
 ## Description
 
 This project is an RPG game based in the Magic: The Gathering trading card game. As a player, you will start in an island where there are 5 NPC's, each one representing one of the 5 colors of Magic (White, Blue, Black, Red and Green). Whenever you encounter an NPC, a match will starts in which both of you have to battle against each other in a turn based card game. When the match begins, each player starts with a starting life total of 20, and whoever manage to get the opponent life to 0, wins the match. During each turn you get mana to cast creatures that will fight for you and can attack at your opponent or at his/her creatures.
@@ -182,7 +184,7 @@ this.shuffleDeck = function () {
 	this.deckCards = Phaser.Utils.Array.Shuffle(this.deckCards);
 };
 ```
-And this is so much easier than shuffle an array in a more traditional way, like using the [Fisher-Yates algorithm](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle).
+And this is so much easier than shuffling an array in a more traditional way, like using the [Fisher-Yates algorithm](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle).
 
 ```
 function shuffle(a) {
