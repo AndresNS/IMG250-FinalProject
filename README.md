@@ -182,7 +182,7 @@ this.shuffleDeck = function () {
 	this.deckCards = Phaser.Utils.Array.Shuffle(this.deckCards);
 };
 ```
-And this is so much easier than shuffle an array in a more traditional way, like using the [Fisher-Yates algorithm](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle).
+And this is so much easier than shuffling an array in a more traditional way, like using the [Fisher-Yates algorithm](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle).
 
 ```
 function shuffle(a) {
