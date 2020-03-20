@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/AndresNS/IMG250-FinalProject#readme",
   "devDependencies": {
-    "eslint": "^6.6.0"
+    "eslint": "^6.8.0"
   },
   "dependencies": {
     "phaser": "^3.20.1"
